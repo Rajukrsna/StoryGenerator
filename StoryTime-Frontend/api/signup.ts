@@ -31,8 +31,13 @@ export const signup = async (
 
     const { token } = response.data;
     localStorage.setItem("authToken", token);
-  } catch (error) {
-    console.error("❌ Sign-up failed", error.response?.data || error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("❌ Sign-up failed", (error as any).response?.data || error.message);
+    } else {
+      console.error("❌ Sign-up failed with an unknown error", error);
+    }
     throw error;
   }
+  
 };
