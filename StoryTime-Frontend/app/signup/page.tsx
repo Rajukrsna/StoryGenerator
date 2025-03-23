@@ -19,7 +19,7 @@ export default function SignUpPage() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [profilePicture, setProfilePicture] = useState<File | null>(null);
+    const [profilePicture, setProfilePicture] = useState<string | null>(null);
     const [previewUrl, setPreviewUrl] = useState("/profile-picture-placeholder.svg");
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
@@ -27,10 +27,17 @@ export default function SignUpPage() {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setProfilePicture(file);
             setPreviewUrl(URL.createObjectURL(file));
+    
+            // Convert to Base64
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                setProfilePicture(reader.result as string); // Store Base64 string
+            };
         }
     };
+    
 
     const handleSignUp = async () => {
         try {

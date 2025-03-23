@@ -14,7 +14,7 @@ export const signup = async (
     name,
     email,
     password,
-    profilePicture, // If you need file upload, do it separately
+    profilePicture:profilePicture || " ", // If you need file upload, do it separately
   };
 
   // 🛑 Log the request payload

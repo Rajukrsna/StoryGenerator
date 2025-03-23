@@ -45,7 +45,7 @@ router.post("/register", async (req, res) => {
       email,
       password,
       googleId,
-      profilePicture,
+      profilePicture: profilePicture||"",
     });
     await newUser.save();
 
