@@ -20,9 +20,8 @@ export const login = async (email: string, password: string): Promise<void> => {
 
     const { token } = response.data;
     localStorage.setItem("authToken", token);
-  } catch (error: unknown) {
-    
-      console.error("❌ Unknown error occurred");
-  
+    console.log("✅ Login successful, token stored.");
+  } catch (error) {
+    console.log("❌ Error occurred during login:", error);
   }
-}
+};
