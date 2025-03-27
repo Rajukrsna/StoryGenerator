@@ -1,7 +1,7 @@
 import AuthorStories from "@/components/authorStories"
 import { Navbar } from "@/components/Navbar"
 import { Button } from "@/components/ui/button"
-
+import Image from "next/image"; 
 
 export default function AuthorPage() {
 
@@ -15,10 +15,12 @@ export default function AuthorPage() {
 
                     <div className="flex flex-col items-center text-center w-1/3">
                         <div className="relative h-100 w-100 overflow-hidden rounded-full bg-gray-300 mb-4">
-                            <img
-                                src={previewUrl}
-                                className="absolute inset-0 h-full w-full object-cover"
-                            />
+                           
+<Image
+  src={previewUrl}
+alt="Profile Picture"   
+  className="object-cover rounded-full"
+/>
                         </div>
                         <Button variant="default" className="mb-2 w-[50%]">Follow</Button>
                     </div>

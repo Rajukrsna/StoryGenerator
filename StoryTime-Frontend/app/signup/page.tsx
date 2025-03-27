@@ -14,7 +14,7 @@ import {
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { signup } from "@/api/signup"
-
+import Image from "next/image"
 export default function SignUpPage() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -110,10 +110,13 @@ export default function SignUpPage() {
 
                         <div className="flex items-center gap-2">
                             <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gray-300">
-                                <img
-                                    src={previewUrl}
-                                    className="absolute inset-0 h-full w-full object-cover"
-                                />
+                              
+                                <Image
+  src={previewUrl}
+  alt="Profile Picture"
+  fill
+  className="object-cover rounded-full"
+/>
                             </div>
                             <input
                                 type="file"

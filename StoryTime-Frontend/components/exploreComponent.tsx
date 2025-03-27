@@ -9,7 +9,7 @@ import { Filter } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getStories } from "@/api/storyApi";
 import { getAuthors } from "@/api/authorApi";
-
+import Image from "next/image"; 
 interface Author {
     id: string;
     name: string;
@@ -100,11 +100,13 @@ function StoriesList({ stories }: { stories: Story[] }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {stories.map((story) => (
                 <CardHorizontal key={story._id} className="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between">
-                <img 
-                    src={story.imageUrl || "/uploads/cover.jpg"} 
-                    alt={story.title} 
-                    className="w-32 h-32 object-cover rounded-lg" 
-                />
+                
+                <Image
+  src={story.imageUrl || "/uploads/cover.jpg"} 
+  alt={story.title} 
+    fill
+  className="object-cover rounded-full"
+/>
                 <div className="flex-1 pr-0 sm:pr-4">
                     <h2 className="text-lg sm:text-xl font-semibold">{story.title}</h2>
                     <p className="text-sm text-gray-700">

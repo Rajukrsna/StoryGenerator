@@ -49,7 +49,7 @@ export default function CreatePage() {
 
     const handleCreate = async () => {
         try {
-            let imageUrl = await handleUpload(); // Upload file and get URL
+            const imageUrl = await handleUpload(); // Upload file and get URL
 
             if (!imageUrl) {
                 alert("Please upload a cover image!");
