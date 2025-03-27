@@ -7,15 +7,64 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@radix-ui/react-label";
 import { useRouter } from "next/navigation";
-
+import { createStory } from "@/api/storyApi";
+import { useState } from "react";   
 
 export default function CreatePage() {
-
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [file, setFile] = useState<File | null>(null);
     const router = useRouter();
 
-    const handleCreate = () => {
-        router.push("/book");
-    }
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setFile(e.target.files[0]);
+        }
+    };
+
+    const handleUpload = async () => {
+        if (!file) return null; // No file selected
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const res = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                return data.filePath; // Return relative file path
+            } else {
+                alert("File upload failed!");
+                return null;
+            }
+        } catch (error) {
+            console.error("Error uploading file:", error);
+            return null;
+        }
+    };
+
+    const handleCreate = async () => {
+        try {
+            let imageUrl = await handleUpload(); // Upload file and get URL
+
+            if (!imageUrl) {
+                alert("Please upload a cover image!");
+                return;
+            }
+
+            const response = await createStory(title, description, imageUrl);
+            if (response) {
+                alert("Story created successfully!");
+                router.push("/homepage");
+            }
+        } catch (error) {
+            console.log("Error creating story:", error);
+        }
+    };
 
     return (
         <main className="bg-white min-h-screen">
@@ -32,17 +81,21 @@ export default function CreatePage() {
                     <CardContent className="space-y-6">
                         <div className="grid gap-2">
                             <Label htmlFor="name">Title</Label>
-                            <Input id="name" type="text" placeholder="Story Title" />
+                            <Input id="name" type="text" placeholder="Story Title" 
+                                value={title} onChange={(e) => setTitle(e.target.value)}
+                            />
                         </div>
 
                         <div className="grid gap-2">
                             <Label htmlFor="email">Description</Label>
-                            <Textarea className="h-32" id="desc" placeholder="Story Description" />
+                            <Textarea className="h-32" id="desc" placeholder="Story Description"
+                                value={description} onChange={(e) => setDescription(e.target.value)}
+                            />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="email">Cover (picture)</Label>
-                            <Input id="picture" type="file" placeholder="Story Cover" />
+                            <Label htmlFor="picture">Cover (picture)</Label>
+                            <Input id="picture" type="file" accept="image/*" onChange={handleFileChange} />
                         </div>
                     </CardContent>
 
@@ -52,5 +105,5 @@ export default function CreatePage() {
                 </Card>
             </div>
         </main>
-    )
+    );
 }

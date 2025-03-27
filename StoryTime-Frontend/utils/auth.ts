@@ -3,7 +3,7 @@ import { getCookie, setCookie, deleteCookie } from 'cookies-next';
 const TOKEN_KEY = 'authToken';
 
 export const getAuthToken = (): string | null => {
-    return getCookie(TOKEN_KEY) as string | null;
+    return localStorage.getItem('authToken') as string | null;
 };
 
 export const refreshAuthToken = async (): Promise<string | null> => {

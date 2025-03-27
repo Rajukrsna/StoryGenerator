@@ -22,7 +22,13 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
     const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         try {
-            await login(email, password);
+            const response = await login(email, password);
+
+    if (!response.success) {
+        setError( "Invalid credentials. Please try again.");
+        return;
+    }
+
             router.push("/homepage");
         } catch (error) {
             console.error("Login failed", error);

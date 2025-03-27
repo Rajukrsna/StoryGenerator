@@ -9,16 +9,16 @@ const router = express.Router();
 /** ✅ Create a New Story (Protected) */
 router.post("/", protect, async (req, res) => {
   try {
-    const { title, content } = req.body;
+    const { title, content , imageUrl} = req.body;
     if (!title || !content) {
       return res
         .status(400)
         .json({ message: "Title and content are required" });
     }
 
-    const story = new Story({ title, content, author: req.user._id });
+    const story = new Story({ title, content, author: req.user._id, imageUrl:imageUrl });
     const savedStory = await story.save();
-
+console.log("my story", story);
     res.status(201).json(savedStory);
   } catch (error) {
     console.error(error);
@@ -48,6 +48,7 @@ router.get("/", async (req, res) => {
     else if (sort === "top") query = query.sort({ votes: -1 });
 
     const stories = await query.lean();
+    
     res.json(stories);
   } catch (error) {
     console.error(error);
@@ -61,6 +62,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(id)
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid Story ID format" });
     }
@@ -68,6 +70,7 @@ router.get("/:id", async (req, res) => {
       "author",
       "name profilePicture"
     );
+    console.log(story)
     if (!story) return res.status(404).json({ message: "Story not found" });
     res.json(story);
   } catch (error) {

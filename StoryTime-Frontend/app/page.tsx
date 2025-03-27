@@ -12,25 +12,28 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white flex flex-col">
       <nav className="flex items-center justify-end border-b px-4 sm:px-8 py-4">
         <Button onClick={handleNavigation} variant="link" className="text-sm hover:underline">
           Sign up
         </Button>
       </nav>
-      <div className="flex flex-col sm:flex-row mt-10 sm:mt-40">
-        <section className="flex items-center justify-center p-4sm:p-8 sm:pl-30">
-          <div className="mr-4 sm:mr-8 mb-6 h-40 w-40 sm:h-90 sm:w-90 border-2 border-dashed flex items-center justify-center">
+
+      <div className="flex flex-col sm:flex-row items-center sm:justify-between mt-10 sm:mt-40 px-6 sm:px-20">
+        {/* Left Section - Branding */}
+        <section className="flex flex-col sm:flex-row items-center sm:items-start sm:pl-32 space-y-4 sm:space-y-0 sm:space-x-8">
+          <div className="h-40 w-40 sm:h-48 sm:w-48 border-2 border-dashed flex items-center justify-center">
             <span className="text-gray-400">Logo</span>
           </div>
-          <div>
-            <h1 className="mb-2 text-6xl sm:text-9xl font-bold">Story</h1>
-            <h1 className="mb-2 text-6xl sm:text-9xl font-bold">Time</h1>
-            <p className="text-gray-600 text-lg sm:text-2xl">Time to make your own story</p>
+          <div className="text-center sm:text-left">
+            <h1 className="text-5xl sm:text-7xl font-bold leading-tight">Story</h1>
+            <h1 className="text-5xl sm:text-7xl font-bold leading-tight">Time</h1>
+            <p className="text-gray-600 text-lg sm:text-2xl mt-2">Time to make your own story</p>
           </div>
         </section>
 
-        <section className="flex items-center justify-center p-4 sm:p-8 sm:pl-50">
+        {/* Right Section - Login Form */}
+        <section className="mt-8 sm:mt-0 sm:pl-20 w-full sm:w-auto flex justify-center">
           <LoginForm />
         </section>
       </div>

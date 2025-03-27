@@ -70,17 +70,19 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-
+    console.log("entered userend", user)
+    const user1 = await User.find()
+  
+console.log("entered Bacend", email)
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const isMatch = await user.matchPassword(password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
+    if (!user || !(await bcrypt.compare(password, user.password)))
+        return res.status(401).json({ message: "Invalid credentials" });
 
     const token = generateToken(user._id);
+    console.log("toment",token)  
     res.json({ _id: user._id, name: user.name, email: user.email, token });
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error: error.message });

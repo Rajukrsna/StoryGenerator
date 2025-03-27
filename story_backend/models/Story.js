@@ -24,6 +24,7 @@ const storySchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    imageUrl: String, // ✅ Image upload feature  (optional)
     contributions: [contributionSchema], // ✅ Contribution feature
     votes: { type: Number, default: 0 }, // ✅ Voting feature
     comments: [commentSchema], // ✅ Commenting feature
