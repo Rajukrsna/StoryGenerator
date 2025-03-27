@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import UserStories from "@/components/userStories"
+import Image from "next/image";
 
 export default function ProfilePage() {
 
@@ -19,10 +20,12 @@ export default function ProfilePage() {
 
                     <div className="flex flex-col items-center text-center mr-10 w-1/3">
                         <div className="relative h-100 w-100 overflow-hidden rounded-full bg-gray-300 mb-4">
-                            <img
-                                src={previewUrl}
-                                className="absolute inset-0 h-full w-full object-cover"
-                            />
+                        <Image
+  src={previewUrl}
+  alt="Profile Picture"
+  fill
+  className="object-cover rounded-full"
+/>
                         </div>
                         <Button variant="link">Change Profile Picture</Button>
                         <h1 className="text-sm text-gray-600">Choose a picture to show</h1>

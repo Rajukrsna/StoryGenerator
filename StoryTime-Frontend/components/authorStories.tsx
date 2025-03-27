@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { CardHorizontal } from "./ui/card";
-
+import Image from "next/image"; 
 const stories = [
     {
         id: 1,
@@ -49,11 +49,13 @@ export default function AuthorStories() {
                     </div>
 
                     <div className="w-128 h-58 flex-shrink-0 bg-gray-300 rounded-lg overflow-hidden">
-                        <img
-                            src={story.coverImage}
-                            alt={story.title}
-                            className="w-full h-full object-cover"
-                        />
+                       
+                        <Image
+  src={story.coverImage}  alt={story.title}
+  fill
+  className="object-cover rounded-full"
+/>
+
                     </div>
                 </CardHorizontal>
             ))}

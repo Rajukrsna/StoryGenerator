@@ -7,6 +7,7 @@ import { CardHorizontal } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Filter, Heart, Pencil, BookOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const chapters = [
     {
@@ -170,7 +171,13 @@ function LeaderboardList() {
 
 
                     <div className="w-16 h-16 bg-gray-300 rounded-full overflow-hidden">
-                        <img src={`/leaderboard-user-${rank}.png`} alt={`User ${rank}`} className="w-full h-full object-cover" />
+                        
+                        <Image
+  src={`/leaderboard-user-${rank}.png`}
+  alt={`User ${rank}`}
+  fill
+  className="object-cover rounded-full"
+/>
                     </div>
 
 
