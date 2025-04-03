@@ -34,9 +34,9 @@ const collabs = [
 export default function ContentComponent({ story , title}: { story: string, title: string }) {
     const [activeTab, setActiveTab] = useState<"read" | "collab" | "leaderboard">("read");
     const router = useRouter();
-    const [chapters, setChapters] = useState([
+    const chapters = [
         { id: 1, title: title, content: story, likes: 123, liked: false }
-    ]);
+    ];
     
 
     const handleNavCollab = () => {

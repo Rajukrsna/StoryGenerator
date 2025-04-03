@@ -38,7 +38,7 @@ const imageUrl = searchParams.get("imageUrl") || "No image provided.";
         }, 50); // Adjust typing speed
 
         return () => clearInterval(typingIntervalRef.current as NodeJS.Timeout);
-    }, [story]);
+    }, []);
 
     const handleRegenerate = async () => {
         setIsTyping(true);
