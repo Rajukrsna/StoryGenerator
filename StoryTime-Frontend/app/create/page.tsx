@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@radix-ui/react-label";
 import { useRouter } from "next/navigation";
-import { createStory } from "@/api/storyApi";
+import { createAIStory } from "@/api/aiApi";
 import { useState } from "react";   
 
 export default function CreatePage() {
@@ -56,10 +56,13 @@ export default function CreatePage() {
                 return;
             }
 
-            const response = await createStory(title, description, imageUrl);
+            const response = await createAIStory(title, description);
+                          console.log("AI response:", response); // Log the AI response 
             if (response) {
-                alert("Story created successfully!");
-                router.push("/homepage");
+                // Navigate to AIPage with the generated story
+                router.push(`/aiPage?story=${encodeURIComponent(response.suggestion)},&title=${encodeURIComponent(title)},&imageUrl=${encodeURIComponent(imageUrl)}`);  
+            } else {
+                alert("AI generation failed!");
             }
         } catch (error) {
             console.log("Error creating story:", error);

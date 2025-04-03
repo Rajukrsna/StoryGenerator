@@ -7,15 +7,16 @@ const router = express.Router();
 /** ✅ AI Suggestion Route (Supports Genre) */
 router.post("/", async (req, res) => {
   try {
-    const { storyText = "", genre } = req.body; // Default empty string if no story text
+    const {title, content} = req.body; // Default empty string if no story text
 
-    if (!storyText && !genre) {
+    if (!title && !content) {
       return res
         .status(400)
         .json({ message: "Provide either story text or genre." });
     }
 
-    const suggestion = await generateAISuggestion(storyText, genre);
+    const suggestion = await generateAISuggestion(title, content);
+    console.log("✅ AI Suggestion:", suggestion);
     res.json({ suggestion });
   } catch (error) {
     console.error("❌ AI Suggestion Error:", error);

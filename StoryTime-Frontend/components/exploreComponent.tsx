@@ -92,8 +92,8 @@ export default function ExplorePage() {
 
 function StoriesList({ stories }: { stories: Story[] }) {
     const router = useRouter();
-    const handleNavBook = (id: string) => {
-        router.push(`/book/${id}`); // Navigate to the selected book ID
+    const handleNavBook = (id: string, content: string, title:string) => {
+        router.push(`/book/${id}?story=${encodeURIComponent(content)},&title=${encodeURIComponent(title)}` ); // Navigate to the selected book ID
     };
 
     return (
@@ -116,7 +116,7 @@ function StoriesList({ stories }: { stories: Story[] }) {
                     </p>
                     <p className="text-sm text-gray-500 mt-1">{story.content.substring(0, 100)}...</p>
                     <div className="flex flex-wrap gap-2 mt-2">
-                        <Button onClick={() => handleNavBook(story._id)}>Read Now</Button>
+                        <Button onClick={() => handleNavBook(story._id, story.content, story.title)}>Read Now</Button>
                     </div>
                 </div>
             </CardHorizontal>

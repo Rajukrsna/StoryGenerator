@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 import { AWAN_API_URL, AWAN_API_KEY } from "../config/config.js";
 
 /** 🔹 Generate AI Suggestions for a Story with Genre */
-export const generateAISuggestion = async (storyText, genre = "General") => {
+export const generateAISuggestion = async (title, content) => {
   try {
     if (!AWAN_API_KEY) {
       console.error(
@@ -11,14 +11,14 @@ export const generateAISuggestion = async (storyText, genre = "General") => {
       return "AI suggestion service unavailable.";
     }
 
-    console.log(`🟢 Requesting AI Suggestion for Genre: ${genre}`);
+    console.log(`🟢 Requesting AI Suggestion for Genre: ${content}`);
 
-    const prompt = `Continue this story in the style of a ${genre} novel:
+    const prompt = `Continue this story for the ${title} title:
     
-    Story so far: "${storyText}"
+    Story so far: "${content}"
     
     Guidelines:
-    - Maintain a ${genre.toLowerCase()} tone and atmosphere.
+    - Maintain a thrilling tone and atmosphere.
     - Expand with rich descriptions and vivid details.
     - Develop character emotions and realistic interactions.
     - Introduce an engaging plot twist or unexpected event.

@@ -9,32 +9,6 @@ import { Filter, Heart, Pencil, BookOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-const chapters = [
-    {
-        id: 1,
-        title: "Chapter 1",
-        authors: ["Author", "Author2", "Author3"],
-        icon: "/chapter-icon-1.png",
-        likes: 123,
-        liked: false,
-    },
-    {
-        id: 2,
-        title: "Chapter 2",
-        authors: ["Author", "Author2", "Author3"],
-        icon: "/chapter-icon-2.png",
-        likes: 123,
-        liked: true,
-    },
-    {
-        id: 3,
-        title: "Chapter 3",
-        authors: ["Author", "Author2", "Author3"],
-        icon: "/chapter-icon-3.png",
-        likes: 123,
-        liked: false,
-    },
-];
 
 const collabs = [
     {
@@ -57,9 +31,14 @@ const collabs = [
     },
 ];
 
-export default function ContentComponent() {
+export default function ContentComponent({ story , title}: { story: string, title: string }) {
     const [activeTab, setActiveTab] = useState<"read" | "collab" | "leaderboard">("read");
     const router = useRouter();
+    const [chapters, setChapters] = useState([
+        { id: 1, title: title, content: story, likes: 123, liked: false }
+    ]);
+    
+
     const handleNavCollab = () => {
         router.push("/collab");
     }
@@ -94,7 +73,7 @@ export default function ContentComponent() {
             </nav>
 
             <section className="mt-6">
-                {activeTab === "read" && <ChapterList />}
+                {activeTab === "read" && <ChapterList chapters={chapters} />}
                 {activeTab === "collab" && <CollabList />}
                 {activeTab === "leaderboard" && <LeaderboardList />}
             </section>
@@ -102,10 +81,11 @@ export default function ContentComponent() {
     );
 }
 
-function ChapterList() {
+function ChapterList({chapters}: {chapters: { id: number; title: string; content: string; likes: number; liked: boolean }[] }) {
     const router = useRouter();
+
     const handleNavRead = () => {
-        router.push("/read");
+        router.push(`/read?chapters=${encodeURIComponent(JSON.stringify(chapters))}`);
     }
     return (
         <div className="grid gap-6">
@@ -117,7 +97,7 @@ function ChapterList() {
 
                     <div className="flex-1 pl-4">
                         <h2 className="text-xl font-semibold">{chapter.title}</h2>
-                        <p className="text-sm text-gray-500">By {chapter.authors.join(", ")}</p>
+                        <p className="text-sm text-gray-500">By the Famous Author Pravin</p>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -143,7 +123,6 @@ function CollabList() {
                     <div className="w-16 h-16 bg-gray-300 rounded-full overflow-hidden flex items-center justify-center">
                         <Pencil className="w-[50%] h-[50%] object-cover" />
                     </div>
-
                     <div className="flex-1">
                         <h2 className="text-xl font-semibold">{user.name}</h2>
                         <p className="text-sm text-gray-500">{user.bio}</p>

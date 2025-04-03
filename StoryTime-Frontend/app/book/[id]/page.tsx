@@ -6,6 +6,7 @@ import { getStory } from "@/api/storyApi";
 import ContentComponent from "@/components/contentComponent";
 import { Navbar } from "@/components/Navbar";
 import { ArrowBigDown, ArrowBigUp } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 // Define the Story type
 interface Story {
@@ -17,8 +18,11 @@ interface Story {
 }
 
 export default function BookPage() {
+    const searchParams = useSearchParams(); // Use useSearchParams to get query parameters
     const { id } = useParams(); // Get story ID from the URL
     const [story, setStory] = useState<Story | null>(null);
+    const initialStory=searchParams.get("story") || "";
+    const title = searchParams.get("title") || "No title provided.";
 
     useEffect(() => {
         if (!id) return;
@@ -61,7 +65,7 @@ export default function BookPage() {
                 </div>
                 <div className="mt-10 h-px bg-gray-300 my-4 max-w-screen-2xl mx-auto" />
                 <div className="text-black p-10">
-                    <ContentComponent />
+                    <ContentComponent story={initialStory} title={title} />
                 </div>
             </div>
         </main>
