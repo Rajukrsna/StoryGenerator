@@ -43,7 +43,7 @@ const imageUrl = searchParams.get("imageUrl") || "No image provided.";
     const handleRegenerate = async () => {
         setIsTyping(true);
         setIsUserEditing(false); // Reset user edit flag
-
+s
         const response = await createAIStory(title, story);
         if (response) {
             setStory(response.suggestion);
