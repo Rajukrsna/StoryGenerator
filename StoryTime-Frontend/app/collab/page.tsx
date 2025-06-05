@@ -1,6 +1,6 @@
 "use client";
-
-import { useState } from "react";
+import { useSearchParams } from 'next/navigation';
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -11,14 +11,143 @@ import Heading from "@tiptap/extension-heading";
 import { X, Lightbulb } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { getStory } from "@/api/storyApi";
+import {updateStory} from "@/api/storyApi";
+import {createAIStory} from "@/api/aiApi";
+import { updateMyProfile } from "@/api/profile";
+import {getMyProfile} from "@/api/profile"
+
+interface Contribution {
+  title: string;
+  score: number;
+}
+interface Chapter {
+  _id?: string;
+  title: string;
+  content: string;
+  createdBy: string | User; // allow both types
+  createdAt: string;
+}
+interface Author {
+    id: string;
+    name: string;
+    bio: string;
+    profileImage: string;
+}
+interface Story {
+    _id: string;
+    title: string;
+    content: Chapter[];
+    author: Author;
+    votes: number;
+    imageUrl: string;   
+}
+interface User {
+  _id: string;
+  name: string;
+  profilePicture?: string;
+  email?: string;
+  bio?: string;
+  contributions?: Contribution[];  // ← updated from `Number` to `Contribution[]`
+}
 
 export default function CollabPage() {
     const [isPlotBotOpen, setIsPlotBotOpen] = useState(false);
     const router = useRouter();
-
-    const handleSave = () => {
-        router.push("/book");
+    const searchParams = useSearchParams();
+    const [story, setStory] = useState<Story | null>(null);
+    const id = searchParams.get("id");
+    const title = searchParams.get("title")
+    
+    const handleSave = async () => {
+    if (!editor || !story || !id) return;
+    const profile = await getMyProfile(); // already defined function
+    
+    const newChapter: Chapter = {
+           // ObjectId (24-char hex)
+        title: `Chapter ${story.content.length + 1}`,//input the title from the user
+        content: editor.getHTML(), // HTML string
+        createdBy:profile._id,
+          
+ // replace with actual user name (maybe from auth context)
+        createdAt: new Date().toISOString(),
     };
+    const updatedStory: Story = {
+    ...story,
+    content: [...story.content, newChapter],
+    // imageUrl is already part of story, so this ensures it is included
+    };
+
+    try {
+        await updateStory(id, updatedStory); // Create this API function
+        alert("Chapter added successfully!");
+        router.push("/book"); // or wherever
+    } catch (err) {
+        console.error("Failed to save new chapter:", err);
+    }
+    
+
+await updateMyProfile({//i am sending the contribution as array of objects
+    contributions: [
+    {
+      title: title||"No Chapter Title Found", 
+      score: 1,
+    },
+  ],
+
+  
+  
+});
+  
+    };
+
+    const handleAIGeneration = async () => {
+    if (!story || !editor) return;
+
+    const title = story.title;
+    const previousContent = editor.getHTML();
+
+    try {
+        const response = await createAIStory(title, previousContent);
+        const aiText = response.suggestion || "No suggestion received.";
+
+        // Clear the editor first
+        editor.commands.setContent("");
+
+        // Typing effect
+        let index = 0;
+
+        const typeNextChar = () => {
+            if (index < aiText.length) {
+                editor.commands.insertContent(aiText[index]);
+                index++;
+                setTimeout(typeNextChar, 20); 
+            }
+        };
+
+        typeNextChar();
+    } catch (err) {
+        console.error("AI story generation failed:", err);
+    }
+};
+
+    
+    useEffect(() => {
+            if (!id) return;
+    
+            const fetchData = async () => {
+                try {
+                    const storyData = await getStory(id as string);
+                    console.log(storyData)
+                    setStory(storyData);
+                } catch (error) {
+                    console.error("Error fetching story:", error);
+                }
+            };
+    
+            fetchData();
+        }, [id]);
+    
 
     const editor = useEditor({
         extensions: [StarterKit, Bold, Italic, Underline, Heading],
@@ -34,11 +163,16 @@ export default function CollabPage() {
             <Navbar />
 
             {/* Header Section */}
-            <div className="flex items-center justify-between p-6">
+            
+                            <div className="flex items-center justify-between p-6">
+                                {story && (
                 <div className="flex flex-col">
-                    <h1 className="text-5xl font-bold">The Dragon Story</h1>
-                    <h2 className="pl-2 text-2xl text-gray-500">Chapter 1</h2>
+                    <h1 className="text-5xl font-bold">{story.title}</h1>
+                    <h2 className="pl-2 text-2xl text-gray-500">
+                    Chapter {story.content.length + 1}
+                    </h2>
                 </div>
+                )}
 
                 <div className="flex items-center gap-4">
                     <div className="flex flex-col items-end">
@@ -62,8 +196,9 @@ export default function CollabPage() {
                     <div className="h-full sm:h-[calc(100vh-28rem)] md:h-[calc(100vh-24rem)] lg:h-[calc(100vh-20rem)] xl:h-[calc(100vh-19rem)] overflow-y-auto">
                         <EditorContent editor={editor} className="h-full text-md" />
                     </div>
+                    <Button onClick={handleAIGeneration} className="mt-2"> Generate with AI </Button>
                 </div>
-
+                
                 {isPlotBotOpen && (
                     <div className="w-1/4 bg-gray-200 p-4 rounded-lg shadow-lg flex flex-col gap-4 justify-between">
                         <div className="flex items-center justify-between">

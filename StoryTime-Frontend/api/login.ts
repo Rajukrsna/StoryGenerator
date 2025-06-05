@@ -27,7 +27,7 @@ export const login = async (email: string, password: string): Promise<LoginResul
     const { token } = response.data;
     localStorage.setItem("authToken", token);
     setCookie("authToken", token, { path: "/" }); // Ensure the token is available in cookies
-
+    
     console.log("✅ Login successful, token stored.");
 
     return { success: true, token };

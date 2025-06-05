@@ -11,13 +11,13 @@ export default function AIPage() {
     const searchParams = useSearchParams();
     const initialStory = searchParams.get("story") || "";
     const title = searchParams.get("title") || "No title provided.";
-const imageUrl = searchParams.get("imageUrl") || "No image provided.";
+    const imageUrl = searchParams.get("imageUrl") || "No image provided.";
     const [story, setStory] = useState(initialStory);
     const [displayedStory, setDisplayedStory] = useState(initialStory);
     const [isTyping, setIsTyping] = useState(false);
     const [isUserEditing, setIsUserEditing] = useState(false);
-        const router = useRouter();
-    
+    const router = useRouter();
+    const createdBy = "Pravin Raju the OG"
     const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     // Typing animation effect
@@ -43,7 +43,7 @@ const imageUrl = searchParams.get("imageUrl") || "No image provided.";
     const handleRegenerate = async () => {
         setIsTyping(true);
         setIsUserEditing(false); // Reset user edit flag
-s
+
         const response = await createAIStory(title, story);
         if (response) {
             setStory(response.suggestion);
@@ -61,7 +61,7 @@ s
     };
     const handlePublish = async () => {
         try{
-            const response = await createStory(title, story, imageUrl)
+            const response = await createStory(title,story, imageUrl)
             if(response){
                 alert("Story published successfully.")
                 router.push("/homepage"); // Redirect to home page after publishing 

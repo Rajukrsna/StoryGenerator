@@ -28,10 +28,12 @@ const userSchema = new Schema(
       default: "Hello! I'm a storyteller.",
       maxlength: [200, "Bio must be at most 200 characters"],
     },
-    contributions: {
-      type: Number,
-      default: 0, // Increases when a user contributes to a story
-    },
+   contributions: [
+  {
+    title: { type: String, required: true },
+    score: { type: Number, required: true }
+  }
+],
     resetPasswordToken: String,
     resetPasswordExpire: Date,
   },
@@ -41,9 +43,8 @@ const userSchema = new Schema(
 // ✅ Hash password before saving
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-
   try {
-    console.log("🔄 Hashing password:", this.password);
+    console.log(" Hashing password:", this.password);
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     console.log("✅ Hashed password:", this.password); // Log the hashed password

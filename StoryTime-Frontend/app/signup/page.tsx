@@ -110,13 +110,13 @@ export default function SignUpPage() {
 
                         <div className="flex items-center gap-2">
                             <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gray-300">
-                              
-                                <Image
-  src={previewUrl}
-  alt="Profile Picture"
-  fill
-  className="object-cover rounded-full"
-/>
+                                                        
+                                                            <Image
+                            src={previewUrl}
+                            alt="Profile Picture"
+                            fill
+                            className="object-cover rounded-full"
+                            />
                             </div>
                             <input
                                 type="file"

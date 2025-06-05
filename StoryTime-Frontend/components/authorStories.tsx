@@ -47,15 +47,12 @@ export default function AuthorStories() {
                             <Button className="mt-2">Read Now</Button>
                         </div>
                     </div>
-
                     <div className="w-128 h-58 flex-shrink-0 bg-gray-300 rounded-lg overflow-hidden">
-                       
                         <Image
   src={story.coverImage}  alt={story.title}
   fill
   className="object-cover rounded-full"
 />
-
                     </div>
                 </CardHorizontal>
             ))}

@@ -4,12 +4,59 @@ import crypto from "crypto";
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
 import { protect } from "../middleware/authMiddleware.js";
-
+import multer from "multer";
+import path from "path";
+import fs from "fs"
 const router = express.Router();
+// Storage config
+import { fileURLToPath } from "url";
 
+// manually recreate __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendUploadsPath = path.join(__dirname, "../../StoryTime-Frontend/public/uploads");
+
+// Ensure the directory exists
+if (!fs.existsSync(frontendUploadsPath)) {
+  fs.mkdirSync(frontendUploadsPath, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, frontendUploadsPath);
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = `${Date.now()}-${file.originalname}`;
+    cb(null, uniqueName);
+  },
+});
+
+const upload = multer({ storage });
 /**
  * ✅ Leaderboard (Top Contributors)
  */
+
+router.get("/all", async (req, res) => {
+  try {
+    console.log("hi");
+    const authors = await User.find({}, "name bio profilePicture");
+    //console.log(authors);
+
+    res.json(
+      authors.map((author) => ({
+        _id: author._id,
+        name: author.name,
+        bio: author.bio || "",
+        profileImage: author.profilePicture || "/default.jpg", // fallback image
+      }))
+    );
+  } catch (error) {
+    console.error("Error in /all route:", error);
+    res
+      .status(500)
+      .json({ message: "Error fetching user profile", error: error.message });
+  }
+});
 router.get("/leaderboard", async (req, res) => {
   try {
     const topUsers = await User.find()
@@ -70,10 +117,9 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    console.log("entered userend", user)
+    //console.log("entered userend", user)
     const user1 = await User.find()
-  
-console.log("entered Bacend", email)
+    //console.log("entered Bacend", email)
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -147,7 +193,7 @@ router.get("/profile", protect, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
-
+    //console.log( user );
     res.json(user);
   } catch (error) {
     res
@@ -159,16 +205,38 @@ router.get("/profile", protect, async (req, res) => {
 /**
  * ✅ Update User Profile (Protected)
  */
+
+router.post("/change-pic", upload.single("profilePicture"), (req, res) => {
+  if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+
+  // return public path
+  res.json({
+    message: "Upload successful",
+    filePath: `/uploads/${req.file.filename}`,
+  });
+});
+
 router.put("/profile", protect, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
+    console.log("guggud:,",user)
     if (!user) return res.status(404).json({ message: "User not found" });
-
     let token = null;
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
     user.bio = req.body.bio || user.bio;
     user.profilePicture = req.body.profilePicture || user.profilePicture;
+      console.log("hey see the contributions",req.body.contributions.title, req.body.contributions.score)
+
+    if (Array.isArray(req.body.contributions)) {
+  req.body.contributions.forEach((c) => {
+    if (c.title && typeof c.score === 'number') {
+      console.log(c.title);
+      console.log(c.score)
+      user.contributions.push(c);
+    }
+  });
+}
 
     if (req.body.password) {
       user.password = req.body.password;
@@ -191,10 +259,6 @@ router.put("/profile", protect, async (req, res) => {
       .json({ message: "Error updating profile", error: error.message });
   }
 });
-
-/**
- * ✅ Get User by ID
- */
 router.get("/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
@@ -206,6 +270,9 @@ router.get("/:id", async (req, res) => {
       .status(500)
       .json({ message: "Error fetching user profile", error: error.message });
   }
+
+ 
 });
+
 
 export default router;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CardHorizontal } from "@/components/ui/card";
@@ -8,6 +8,36 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Filter, Heart, Pencil, BookOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { getStory } from "@/api/storyApi"
+import {getLeaderBoard} from "@/api/storyApi"
+// Correct Chapter interface
+interface User {
+  _id: string;
+  name: string;
+  profilePicture?: string;
+}
+
+interface Chapter {
+  _id?: string;
+  title: string;
+  content: string;
+  createdBy: string | User; // allow both types
+  createdAt: string;
+}
+interface Story {
+    _id: string;
+    title: string;
+    content: Chapter[];
+    author: Author;
+    votes: number;
+    imageUrl: string;
+}
+interface Author {
+    id: string;
+    name: string;
+    bio: string;
+    profileImage: string;
+}
 
 
 const collabs = [
@@ -31,16 +61,21 @@ const collabs = [
     },
 ];
 
-export default function ContentComponent({ story , title}: { story: string, title: string }) {
+export default function ContentComponent({ id, story , title}: { id: string, story: Chapter[], title: string }) {
     const [activeTab, setActiveTab] = useState<"read" | "collab" | "leaderboard">("read");
     const router = useRouter();
-    const chapters = [
-        { id: 1, title: title, content: story, likes: 123, liked: false }
-    ];
+   //console.log( title)
+   const chapters = story.map((chapter, index) => ({
+    id: index + 1,
+    title: chapter.title,
+    content: chapter.content,
+    likes: 0,     // Default or fetched separately
+    liked: false, // Default or fetched separately
+  }));
     
 
     const handleNavCollab = () => {
-        router.push("/collab");
+        router.push(`/collab?id=${encodeURIComponent(id)}&title=${encodeURIComponent(title)}`)
     }
 
     return (
@@ -74,8 +109,8 @@ export default function ContentComponent({ story , title}: { story: string, titl
 
             <section className="mt-6">
                 {activeTab === "read" && <ChapterList chapters={chapters} />}
-                {activeTab === "collab" && <CollabList />}
-                {activeTab === "leaderboard" && <LeaderboardList />}
+                {activeTab === "collab" && <CollabList id={id} title={title} />}
+                {activeTab === "leaderboard" && <LeaderboardList title={title} />}
             </section>
         </main>
     );
@@ -83,14 +118,17 @@ export default function ContentComponent({ story , title}: { story: string, titl
 
 function ChapterList({chapters}: {chapters: { id: number; title: string; content: string; likes: number; liked: boolean }[] }) {
     const router = useRouter();
-
-    const handleNavRead = () => {
-        router.push(`/read?chapters=${encodeURIComponent(JSON.stringify(chapters))}`);
-    }
+    
+const handleNavRead = (chapter: typeof chapters[0]) => {
+    router.push(
+      `/read?chapter=${encodeURIComponent(JSON.stringify(chapter))}`
+    );
+  };
     return (
         <div className="grid gap-6">
             {chapters.map((chapter) => (
-                <CardHorizontal onClick={handleNavRead} key={chapter.id} className="p-4 flex items-center justify-between cursor-pointer">
+                <CardHorizontal  onClick={() => handleNavRead(chapter)}
+                key={chapter.id} className="p-4 flex items-center justify-between cursor-pointer">
                     <div className="w-16 h-16 bg-gray-300 rounded-lg flex items-center justify-center overflow-hidden">
                         <BookOpen className="w-[50%] h-[50%] object-cover" />
                     </div>
@@ -110,69 +148,107 @@ function ChapterList({chapters}: {chapters: { id: number; title: string; content
     );
 }
 
-function CollabList() {
-    const router = useRouter();
-    const handleNavCollab = () => {
-        router.push("/collab");
-    }
+function CollabList({ id, title }: { id: string; title: string }) {
+  const router = useRouter();
+  const [story, setStory] = useState<Story | null>(null);
 
-    return (
-        <div className="grid gap-6">
-            {collabs.map((user) => (
-                <CardHorizontal onClick={handleNavCollab} key={user.id} className="p-4 flex items-center justify-between gap-4 cursor-pointer">
-                    <div className="w-16 h-16 bg-gray-300 rounded-full overflow-hidden flex items-center justify-center">
-                        <Pencil className="w-[50%] h-[50%] object-cover" />
-                    </div>
-                    <div className="flex-1">
-                        <h2 className="text-xl font-semibold">{user.name}</h2>
-                        <p className="text-sm text-gray-500">{user.bio}</p>
-                    </div>
-                </CardHorizontal>
-            ))}
-        </div>
-    );
+  useEffect(() => {
+    if (!id) return;
+
+    const getCollabs = async () => {
+      try {
+        const response = await getStory(id);
+        setStory(response); // ✅ No more TS error if types match
+      } catch (err) {
+        console.error("Failed to fetch story", err);
+      }
+    };
+
+    getCollabs();
+  }, [id]);
+
+  if (!story) return <p>Loading...</p>;
+
+  return (
+    <div className="grid gap-6">
+      {story.content.map((content) => (
+        <CardHorizontal
+          key={content._id}
+          className="p-4 flex items-center justify-between gap-4 cursor-pointer"
+        >
+          <div className="w-16 h-16 bg-gray-300 rounded-full overflow-hidden flex items-center justify-center">
+            <Pencil className="w-[50%] h-[50%] object-cover" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold">
+            {typeof content.createdBy === "object" && content.createdBy?.name}
+            </h2>           
+             <p className="text-sm text-gray-500">Contributed on {content.title}</p>
+          </div>
+        </CardHorizontal>
+      ))}
+    </div>
+  );
 }
 
-function LeaderboardList() {
-
-    const router = useRouter();
-    const handleNavAuthor = () => {
-        router.push("/author");
-    }
-
-    return (
-
-        <div className="grid gap-6">
-            {[1, 2, 3].map((rank) => (
-                <CardHorizontal key={rank} className="p-4 flex items-center gap-4">
-
-                    <h2 className="text-2xl font-bold">{rank}</h2>
+interface LeaderboardEntry {
+  userId: string;
+  name: string;
+  profilePicture?: string;
+  totalScore: number;
+}
 
 
-                    <div className="w-16 h-16 bg-gray-300 rounded-full overflow-hidden">
-                        
-                        <Image
-  src={`/leaderboard-user-${rank}.png`}
-  alt={`User ${rank}`}
-  fill
-  className="object-cover rounded-full"
-/>
-                    </div>
+  function LeaderboardList({ title }: { title: string }) {
+  const router = useRouter();
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
+  const handleNavAuthor = () => {
+    router.push("/author");
+  };
 
-                    <div className="flex-1">
-                        <p className="text-lg font-semibold">User {rank}</p>
-                        <p className="text-sm text-gray-500">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        </p>
-                    </div>
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const res = await getLeaderBoard(title); // GET `/leaderboard/:title`
+        setLeaderboard(res);
+      } catch (err) {
+        console.error("Failed to fetch leaderboard", err);
+      }
+    };
+    fetchLeaderboard();
+  }, [title]);
 
-                    <div className="flex flex-col gap-2">
-                        <Button size="sm">Follow</Button>
-                        <Button onClick={handleNavAuthor} variant="outline" size="sm">Search</Button>
-                    </div>
-                </CardHorizontal>
-            ))}
-        </div>
-    );
+  return (
+    <div className="grid gap-6">
+      {leaderboard.map((entry, index) => (
+        <CardHorizontal key={entry.userId} className="p-4 flex items-center gap-4">
+          <h2 className="text-2xl font-bold">{index + 1}</h2>
+
+          <div className="w-16 h-16 bg-gray-300 rounded-full overflow-hidden relative">
+            <Image
+              src={entry.profilePicture || "/default-user.png"}
+              alt={entry.name}
+              fill
+              className="object-cover rounded-full"
+            />
+          </div>
+
+          <div className="flex-1">
+            <p className="text-lg font-semibold">{entry.name}</p>
+            <p className="text-sm text-gray-500">
+              {entry.totalScore} Contribution{entry.totalScore !== 1 ? "s" : ""}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Button size="sm">Follow</Button>
+            <Button onClick={handleNavAuthor} variant="outline" size="sm">
+              Search
+            </Button>
+          </div>
+        </CardHorizontal>
+      ))}
+    </div>
+  );
 }

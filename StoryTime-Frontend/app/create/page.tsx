@@ -55,9 +55,7 @@ export default function CreatePage() {
                 alert("Please upload a cover image!");
                 return;
             }
-
             const response = await createAIStory(title, description);
-                          console.log("AI response:", response); // Log the AI response 
             if (response) {
                 // Navigate to AIPage with the generated story
                 router.push(`/aiPage?story=${encodeURIComponent(response.suggestion)},&title=${encodeURIComponent(title)},&imageUrl=${encodeURIComponent(imageUrl)}`);  

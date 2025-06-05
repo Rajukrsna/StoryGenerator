@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { LoginForm } from "@/components/ui/login-form"
 import { useRouter } from "next/navigation"
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter()
@@ -22,9 +23,15 @@ export default function LoginPage() {
       <div className="flex flex-col sm:flex-row items-center sm:justify-between mt-10 sm:mt-40 px-6 sm:px-20">
         {/* Left Section - Branding */}
         <section className="flex flex-col sm:flex-row items-center sm:items-start sm:pl-32 space-y-4 sm:space-y-0 sm:space-x-8">
-          <div className="h-40 w-40 sm:h-48 sm:w-48 border-2 border-dashed flex items-center justify-center">
-            <span className="text-gray-400">Logo</span>
-          </div>
+         <div className="h-40 w-40 sm:h-48 sm:w-48 flex items-center justify-center">
+  <Image
+    src="/uploads/StoryMagic.png"
+    alt="StoryTime Logo"
+    width={192} // 48 * 4
+    height={192}
+    className="object-contain"
+  />
+</div>
           <div className="text-center sm:text-left">
             <h1 className="text-5xl sm:text-7xl font-bold leading-tight">Story</h1>
             <h1 className="text-5xl sm:text-7xl font-bold leading-tight">Time</h1>
