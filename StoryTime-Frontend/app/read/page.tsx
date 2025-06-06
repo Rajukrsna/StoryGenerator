@@ -18,12 +18,7 @@ interface Chapter {
   createdBy: string | User; // allow both types
   createdAt: string;
 }
-interface Author {
-    id: string;
-    name: string;
-    bio: string;
-    profileImage: string;
-}
+
 
 
 

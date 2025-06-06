@@ -38,7 +38,7 @@ export default function AIPage() {
         }, 50); // Adjust typing speed
 
         return () => clearInterval(typingIntervalRef.current as NodeJS.Timeout);
-    }, [story]);
+    }, [story,isUserEditing]);
 
     const handleRegenerate = async () => {
         setIsTyping(true);
