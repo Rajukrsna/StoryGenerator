@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { CardHorizontal } from "./ui/card";
 import Image from "next/image";
-import { getStories } from "@/api/storyApi"; // corrected path
+import { getUserStories } from "@/api/storyApi"; // corrected path
 
 // Interfaces
 interface Contribution {
@@ -45,7 +45,8 @@ export default function UserStories() {
   useEffect(() => {
     const fetchStories = async () => {
       try {
-        const storiesData = await getStories();
+        const storiesData = await getUserStories();
+        console.log("ofod", storiesData)
         if (storiesData) {
           setStories(storiesData);
         }

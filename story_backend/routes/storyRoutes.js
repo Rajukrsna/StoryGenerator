@@ -6,6 +6,20 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+//to get stories that user wrote!
+router.get("/getUserStories", protect, async (req, res) => {
+  try {
+    const id = req.user._id; // ✅ Fix here
+    console.log(id);
+    const stories = await Story.find({ author: id }); 
+    console.log("found stories", stories)
+    // This returns an array
+    res.json(stories);
+  } catch (error) {
+    console.error("Error encountered in getting stories by user", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 /** ✅ Create a New Story (Protected) */
 router.post("/", protect, async (req, res) => {
   try {
@@ -92,6 +106,7 @@ router.get("/leaderboard/:title", async (req, res) => {
     });
   }
 });
+
 
 /** ✅ Get All Stories with Optional Search & Sorting */
 router.get("/", async (req, res) => {
@@ -182,11 +197,11 @@ router.put("/:id", protect, async (req, res) => {
     const story = await Story.findById(id);
     
     if (!story) return res.status(404).json({ message: "Story not found" });
-    if (story.author.toString() !== req.user._id.toString()) {
-      return res
-        .status(403)
-        .json({ message: "Not authorized to edit this story" });
-    }
+   // if (story.author.toString() !== req.user._id.toString()) {
+    //  return res
+     //   .status(403)
+      //  .json({ message: "Not authorized to edit this story" });
+   // }
     
     story.content = content || story.content;
     const updatedStory = await story.save();
@@ -217,6 +232,7 @@ router.delete("/:id", protect, async (req, res) => {
       .json({ message: "Error deleting story", error: error.message });
   }
 });
+
 
 
 export default router;

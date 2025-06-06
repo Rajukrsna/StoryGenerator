@@ -90,3 +90,8 @@ export const getLeaderBoard = async (title: string): Promise<LeaderboardEntry[]>
   const response = await apiClient.get<LeaderboardEntry[]>(`/api/stories/leaderboard/${title}`);
   return response.data;
 };
+
+export const getUserStories = async():Promise<Story[]> => {
+  const response = await apiClient.get<Story[]>("/api/stories/getUserStories");
+  return response.data;
+}

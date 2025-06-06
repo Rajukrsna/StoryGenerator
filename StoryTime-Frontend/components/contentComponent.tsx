@@ -66,9 +66,10 @@ export default function ContentComponent({ id, story , title}: { id: string, sto
     const router = useRouter();
    //console.log( title)
    const chapters = story.map((chapter, index) => ({
-    id: index + 1,
+    id: index ,
     title: chapter.title,
     content: chapter.content,
+    createdBy: chapter.createdBy,
     likes: 0,     // Default or fetched separately
     liked: false, // Default or fetched separately
   }));
@@ -108,7 +109,7 @@ export default function ContentComponent({ id, story , title}: { id: string, sto
             </nav>
 
             <section className="mt-6">
-                {activeTab === "read" && <ChapterList chapters={chapters} />}
+                {activeTab === "read" && <ChapterList title ={title} chapters={chapters} id={id} />}
                 {activeTab === "collab" && <CollabList id={id} title={title} />}
                 {activeTab === "leaderboard" && <LeaderboardList title={title} />}
             </section>
@@ -116,26 +117,30 @@ export default function ContentComponent({ id, story , title}: { id: string, sto
     );
 }
 
-function ChapterList({chapters}: {chapters: { id: number; title: string; content: string; likes: number; liked: boolean }[] }) {
+function ChapterList({title,chapters,id }: {title: string, chapters: { id: number; title: string; content: string; createdBy: string | User; likes: number; liked: boolean }[], id: string }) {
     const router = useRouter();
     
-const handleNavRead = (chapter: typeof chapters[0]) => {
+const handleNavRead = (chapId: number) => {
     router.push(
-      `/read?chapter=${encodeURIComponent(JSON.stringify(chapter))}`
+      `/read?id=${encodeURIComponent(id)}&title=${encodeURIComponent(title)}&chapId=${encodeURIComponent(chapId)}`
     );
   };
     return (
         <div className="grid gap-6">
             {chapters.map((chapter) => (
-                <CardHorizontal  onClick={() => handleNavRead(chapter)}
+                <CardHorizontal  onClick={() => handleNavRead(chapter.id)}
                 key={chapter.id} className="p-4 flex items-center justify-between cursor-pointer">
                     <div className="w-16 h-16 bg-gray-300 rounded-lg flex items-center justify-center overflow-hidden">
                         <BookOpen className="w-[50%] h-[50%] object-cover" />
                     </div>
 
                     <div className="flex-1 pl-4">
-                        <h2 className="text-xl font-semibold">{chapter.title}</h2>
-                        <p className="text-sm text-gray-500">By the Famous Author Pravin</p>
+                      <h2 className="text-xl font-semibold">{chapter.title}</h2>
+                     <p className="text-sm text-gray-500">Created By -
+                        {typeof chapter.createdBy === "string"
+                          ? chapter.createdBy
+                          : chapter.createdBy.name}
+                      </p>
                     </div>
 
                     <div className="flex items-center gap-2">
