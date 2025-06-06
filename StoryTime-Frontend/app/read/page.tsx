@@ -24,14 +24,7 @@ interface Author {
     bio: string;
     profileImage: string;
 }
-interface Story {
-    _id: string;
-    title: string;
-    content: Chapter[];
-    author: Author;
-    votes: number;
-    imageUrl: string;
-}
+
 
 
 export default function ReadPage() {

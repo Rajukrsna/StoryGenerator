@@ -6,7 +6,6 @@ import { getStory } from "@/api/storyApi";
 import ContentComponent from "@/components/contentComponent";
 import { Navbar } from "@/components/Navbar";
 import { ArrowBigDown, ArrowBigUp } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 
 // Define the Story type
 interface User {
@@ -37,11 +36,9 @@ interface Story {
 }
 
 export default function BookPage() {
-    const searchParams = useSearchParams(); // Use useSearchParams to get query parameters
+   
     const params = useParams(); // Get story ID from the URL
     const [story, setStory] = useState<Story | null>(null);
-    //const initialStory=searchParams.get("story") || "";
-    //const title = searchParams.get("title") || "No title provided.";
     const id = params?.id as string;
 
     useEffect(() => {
@@ -50,8 +47,6 @@ export default function BookPage() {
         const fetchData = async () => {
             try {
                 const storyData = await getStory(id as string);
-                //console.log(storyData)
-                //console.log("author name", storyData.author)
                 setStory(storyData);
             } catch (error) {
                 console.error("Error fetching story:", error);

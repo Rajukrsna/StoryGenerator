@@ -17,10 +17,10 @@ export default function AIPage() {
     const [isTyping, setIsTyping] = useState(false);
     const [isUserEditing, setIsUserEditing] = useState(false);
     const router = useRouter();
-    const createdBy = "Pravin Raju the OG"
     const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Typing animation effect
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (!story || isUserEditing) return; // Do nothing if user is editing
 

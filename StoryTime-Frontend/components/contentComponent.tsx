@@ -40,31 +40,9 @@ interface Author {
 }
 
 
-const collabs = [
-    {
-        id: 1,
-        name: "User 1",
-        bio: "Collab writer contributing new chapters.",
-        profileImage: "/collab-user-1.png",
-    },
-    {
-        id: 2,
-        name: "User 2",
-        bio: "Bringing exciting plot twists to the story.",
-        profileImage: "/collab-user-2.png",
-    },
-    {
-        id: 3,
-        name: "User 3",
-        bio: "World-building expert for fantasy settings.",
-        profileImage: "/collab-user-3.png",
-    },
-];
-
 export default function ContentComponent({ id, story , title}: { id: string, story: Chapter[], title: string }) {
     const [activeTab, setActiveTab] = useState<"read" | "collab" | "leaderboard">("read");
     const router = useRouter();
-   //console.log( title)
    const chapters = story.map((chapter, index) => ({
     id: index ,
     title: chapter.title,
@@ -110,7 +88,7 @@ export default function ContentComponent({ id, story , title}: { id: string, sto
 
             <section className="mt-6">
                 {activeTab === "read" && <ChapterList title ={title} chapters={chapters} id={id} />}
-                {activeTab === "collab" && <CollabList id={id} title={title} />}
+                {activeTab === "collab" && <CollabList id={id} />}
                 {activeTab === "leaderboard" && <LeaderboardList title={title} />}
             </section>
         </main>
@@ -153,10 +131,8 @@ const handleNavRead = (chapId: number) => {
     );
 }
 
-function CollabList({ id, title }: { id: string; title: string }) {
-  const router = useRouter();
+function CollabList({ id}: { id: string}) {
   const [story, setStory] = useState<Story | null>(null);
-
   useEffect(() => {
     if (!id) return;
 
