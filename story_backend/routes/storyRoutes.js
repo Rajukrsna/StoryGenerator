@@ -185,6 +185,7 @@ router.put("/:id", protect, async (req, res) => {
     const { id } = req.params;
     console.log("myID", id)
     const { content } = req.body;
+    const { votes } = req.body;
     //console.log("this is my contnent of hcp 2", content)
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid Story ID format" });
@@ -202,7 +203,7 @@ router.put("/:id", protect, async (req, res) => {
      //   .status(403)
       //  .json({ message: "Not authorized to edit this story" });
    // }
-    
+    story.votes= votes||story.votes;
     story.content = content || story.content;
     const updatedStory = await story.save();
     res.json(updatedStory);

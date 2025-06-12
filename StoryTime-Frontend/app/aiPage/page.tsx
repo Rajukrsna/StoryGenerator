@@ -19,8 +19,6 @@ export default function AIPage() {
     const router = useRouter();
     const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (!story || isUserEditing) return; // Do nothing if user is editing
 

@@ -19,7 +19,7 @@ export default function SignUpPage() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [profilePicture, setProfilePicture] = useState<string | null>(null);
+    const [profileFile, setProfileFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState("/profile-picture-placeholder.svg");
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
@@ -27,21 +27,13 @@ export default function SignUpPage() {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setPreviewUrl(URL.createObjectURL(file));
-    
-            // Convert to Base64
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => {
-                setProfilePicture(reader.result as string); // Store Base64 string
-            };
-        }
+        setPreviewUrl(URL.createObjectURL(file));
+        setProfileFile(file); // store File instead of Base64
+  }
     };
-    
-
     const handleSignUp = async () => {
         try {
-            await signup(name, email, password, profilePicture);
+            await signup(name, email, password, profileFile);
             router.push("/homepage");
         } catch (error) {
             console.error("Sign-up failed", error);
@@ -109,24 +101,25 @@ export default function SignUpPage() {
                         </div>
 
                         <div className="flex items-center gap-2">
+                           <label htmlFor="profile-picture" className="cursor-pointer flex items-center gap-2">
                             <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gray-300">
-                                                        
-                                                            <Image
-                            src={previewUrl}
-                            alt="Profile Picture"
-                            fill
-                            className="object-cover rounded-full"
-                            />
+                                <Image
+                                src={previewUrl}
+                                alt="Profile Picture"
+                                fill
+                                className="object-cover rounded-full"
+                                />
                             </div>
+                            <span className="text-black text-m">Profile Picture</span>
+                            </label>
                             <input
-                                type="file"
-                                id="profile-picture"
-                                className="sr-only"
-                                onChange={handleFileChange}
-                            />
-                            <div className="text-black text-m">
-                                Profile Picture
-                            </div>
+                            type="file"
+                            id="profile-picture"
+                            className="sr-only"
+                            accept="image/*"
+                            onChange={handleFileChange}
+/>
+
                         </div>
                         {error && <p style={{ color: 'red' }}>{error}</p>}
                     </CardContent>

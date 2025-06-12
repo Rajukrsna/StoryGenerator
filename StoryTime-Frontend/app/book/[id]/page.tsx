@@ -6,7 +6,7 @@ import { getStory } from "@/api/storyApi";
 import ContentComponent from "@/components/contentComponent";
 import { Navbar } from "@/components/Navbar";
 import { ArrowBigDown, ArrowBigUp } from "lucide-react";
-
+import {updateStory} from "@/api/storyApi"
 // Define the Story type
 interface User {
   _id: string;
@@ -17,6 +17,7 @@ interface Chapter {
   _id?: string;
   title: string;
   content: string;
+  likes:number;
   createdBy: string | User; // allow both types
   createdAt: string;
 }
@@ -40,7 +41,23 @@ export default function BookPage() {
     const params = useParams(); // Get story ID from the URL
     const [story, setStory] = useState<Story | null>(null);
     const id = params?.id as string;
+    const handleUpdateStory = async (vote: number) => {
+        if (!story) return;
 
+        const updatedVotes = story.votes + vote;
+
+        const updatedStory: Story = {
+            ...story,
+            votes: updatedVotes,
+        };
+
+        setStory(updatedStory); // Optimistic UI update
+  try {
+    await updateStory(id, updatedStory); // Send update to server
+  } catch (error) {
+    console.error("Failed to update story votes:", error);
+  }
+};
     useEffect(() => {
         if (!id) return;
 
@@ -52,14 +69,11 @@ export default function BookPage() {
                 console.error("Error fetching story:", error);
             }
         };
-
-        fetchData();
+    fetchData();
     }, [id]);
-
     if (!story) {
-        return <p className="text-center mt-10 text-gray-500">Loading story...</p>;
+        return <p className="text-center mt-10 text-gray-500"> Loading story...</p>;
     }
-
     return (
         <main className="min-h-screen bg-white">
             <Navbar />
@@ -76,12 +90,18 @@ export default function BookPage() {
                         <h2 className="pl-3 text-white text-2xl">by {story.author ? (typeof story.author === "string" ? story.author : story.author.name) : "Unknown"}</h2>
                         <div className="flex gap-1.5 pl-3">
                             <div className="flex  text-white flex-col items-center">
-                                <ArrowBigUp size={30} className="rounded-full bg-gray-400 mt-2" />
-                                <h1>{story.votes}</h1>
-                            </div>
-                            <div className="flex text-white flex-col items-center">
-                                <ArrowBigDown size={30} className="mt-2" />
-                                <h1 >0</h1>
+                        <ArrowBigUp
+                            size={30}
+                            className="rounded-full bg-gray-400 mt-2 cursor-pointer"
+                            onClick={() => handleUpdateStory(1)} // 👈 Pass a function, not a call
+                            />
+                            <h1>{story.votes}</h1>
+
+                        <ArrowBigDown
+                            size={30}
+                            className="mt-2 cursor-pointer"
+                            onClick={() => handleUpdateStory(-1)} // 👈 Correct downvote
+                            />
                             </div>
                         </div>
                     </div>

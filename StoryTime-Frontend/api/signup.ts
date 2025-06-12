@@ -8,24 +8,26 @@ export const signup = async (
   name: string,
   email: string,
   password: string,
-  profilePicture: string | null // Change File to string (URL)
+  profilePicture: File | null // Change File to string (URL)
 ): Promise<void> => {
-  const requestBody = {
-    name,
-    email,
-    password,
-    profilePicture:profilePicture || " ", // If you need file upload, do it separately
-  };
+ 
+  const formData = new FormData();
+  formData.append("name", name);
+  formData.append("email", email);
+  formData.append("password", password);
+  if (profilePicture) {
+    formData.append("profilePicture", profilePicture);
+  }
 
   // 🛑 Log the request payload
-  console.log("📤 Sending Signup Data:", requestBody);
+  console.log("📤 Sending Signup Data:", formData);
 
   try {
     const response = await apiClient.post<SignUpResponse>(
       "/api/users/register", // ✅ Correct path
-      requestBody,
+      formData ,
       {
-        headers: { "Content-Type": "application/json" }, // Ensure JSON headers
+        headers: {  "Content-Type": "multipart/form-data",}, // Ensure JSON headers
       }
     );
 
@@ -41,3 +43,4 @@ export const signup = async (
   }
   
 };
+

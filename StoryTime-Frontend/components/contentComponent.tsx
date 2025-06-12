@@ -10,6 +10,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getStory } from "@/api/storyApi"
 import {getLeaderBoard} from "@/api/storyApi"
+import React, { Suspense } from 'react';
+import {updateStory} from "@/api/storyApi"
 // Correct Chapter interface
 interface User {
   _id: string;
@@ -21,6 +23,7 @@ interface Chapter {
   _id?: string;
   title: string;
   content: string;
+  likes: number;
   createdBy: string | User; // allow both types
   createdAt: string;
 }
@@ -48,7 +51,8 @@ export default function ContentComponent({ id, story , title}: { id: string, sto
     title: chapter.title,
     content: chapter.content,
     createdBy: chapter.createdBy,
-    likes: 0,     // Default or fetched separately
+    createdAt: chapter.createdAt,
+    likes: chapter.likes,    
     liked: false, // Default or fetched separately
   }));
     
@@ -87,48 +91,99 @@ export default function ContentComponent({ id, story , title}: { id: string, sto
             </nav>
 
             <section className="mt-6">
-                {activeTab === "read" && <ChapterList title ={title} chapters={chapters} id={id} />}
-                {activeTab === "collab" && <CollabList id={id} />}
-                {activeTab === "leaderboard" && <LeaderboardList title={title} />}
+                       {/* Wrap each tab content with Suspense */}
+        <Suspense fallback={<div>Loading Chapters...</div>}>
+          {activeTab === "read" && <ChapterList title={title}  chapters={chapters} id={id} />}
+        </Suspense>
+
+        <Suspense fallback={<div>Loading Collaboration...</div>}>
+          {activeTab === "collab" && <CollabList id={id} />}
+        </Suspense>
+
+        <Suspense fallback={<div>Loading Leaderboard...</div>}>
+          {activeTab === "leaderboard" && <LeaderboardList title={title} />}
+        </Suspense>
+
             </section>
         </main>
     );
 }
 
-function ChapterList({title,chapters,id }: {title: string, chapters: { id: number; title: string; content: string; createdBy: string | User; likes: number; liked: boolean }[], id: string }) {
+function ChapterList({title,chapters:initialChapters,id }: {title: string, chapters: { id: number; title: string; content: string; createdBy: string | User; createdAt: string ; likes: number; liked: boolean }[], id: string }) {
     const router = useRouter();
-    
+   const [chapters, setChapters] = useState(initialChapters); // keep local state
+
 const handleNavRead = (chapId: number) => {
     router.push(
       `/read?id=${encodeURIComponent(id)}&title=${encodeURIComponent(title)}&chapId=${encodeURIComponent(chapId)}`
     );
   };
-    return (
-        <div className="grid gap-6">
-            {chapters.map((chapter) => (
-                <CardHorizontal  onClick={() => handleNavRead(chapter.id)}
-                key={chapter.id} className="p-4 flex items-center justify-between cursor-pointer">
-                    <div className="w-16 h-16 bg-gray-300 rounded-lg flex items-center justify-center overflow-hidden">
-                        <BookOpen className="w-[50%] h-[50%] object-cover" />
-                    </div>
+ const handleToggleLike = async (chapId: number) => {
+    const updatedChapters = chapters.map((ch) => {
+      if (ch.id === chapId ) {
+        return {
+          ...ch,
+          likes: ch.liked ? ch.likes - 1 : ch.likes + 1,
+          liked: !ch.liked
+        };
+      }
+      return ch;
+    });
 
-                    <div className="flex-1 pl-4">
-                      <h2 className="text-xl font-semibold">{chapter.title}</h2>
-                     <p className="text-sm text-gray-500">Created By -
-                        {typeof chapter.createdBy === "string"
-                          ? chapter.createdBy
-                          : chapter.createdBy.name}
-                      </p>
-                    </div>
+    setChapters(updatedChapters); // update local state immediately
 
-                    <div className="flex items-center gap-2">
-                        <span className="text-gray-500">{chapter.likes}</span>
-                        <Heart className={`text-gray-400 ${chapter.liked ? "fill-red-500 text-red-500" : ""}`} />
-                    </div>
-                </CardHorizontal>
-            ))}
-        </div>
-    );
+    try {
+      await updateStory(id, {
+        _id: id,
+        title,
+        content: updatedChapters,
+        author: { id: "", name: "", bio: "", profileImage: "" }, 
+        votes: 0,
+        imageUrl: ""
+      });
+    } catch (err) {
+      console.error("Failed to update likes:", err);
+    }
+  };
+
+  return (
+    <div className="grid gap-6">
+      {chapters.map((chapter) => (
+        <CardHorizontal
+          onClick={() => handleNavRead(chapter.id)}
+          key={chapter.id}
+          className="p-4 flex items-center justify-between cursor-pointer"
+        >
+          <div className="w-16 h-16 bg-gray-300 rounded-lg flex items-center justify-center overflow-hidden">
+            <BookOpen className="w-[50%] h-[50%] object-cover" />
+          </div>
+
+          <div className="flex-1 pl-4">
+            <h2 className="text-xl font-semibold">{chapter.title}</h2>
+            <p className="text-sm text-gray-500">
+              Created By -{" "}
+              {typeof chapter.createdBy === "string"
+                ? chapter.createdBy
+                : chapter.createdBy.name}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-gray-500">{chapter.likes}</span>
+            <Heart
+              className={`text-gray-400 ${
+                chapter.liked ? "fill-red-500 text-red-500" : ""
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleLike(chapter.id);
+              }}
+            />
+          </div>
+        </CardHorizontal>
+      ))}
+    </div>
+  );
 }
 
 function CollabList({ id}: { id: string}) {
@@ -139,7 +194,7 @@ function CollabList({ id}: { id: string}) {
     const getCollabs = async () => {
       try {
         const response = await getStory(id);
-        setStory(response); // ✅ No more TS error if types match
+        setStory(response);
       } catch (err) {
         console.error("Failed to fetch story", err);
       }

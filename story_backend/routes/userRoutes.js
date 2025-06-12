@@ -74,9 +74,10 @@ router.get("/leaderboard", async (req, res) => {
 /**
  * ✅ User Registration
  */
-router.post("/register", async (req, res) => {
+router.post("/register",upload.single("profilePicture"), async (req, res) => {
   try {
-    const { name, email, password, googleId, profilePicture } = req.body;
+    const { name, email, password, googleId } = req.body;
+    console.log("profile Picture - ", req.file)
 
     if (!email || (!password && !googleId)) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -92,7 +93,7 @@ router.post("/register", async (req, res) => {
       email,
       password,
       googleId,
-      profilePicture: profilePicture||"",
+      profilePicture: req.file ? `/uploads/${req.file.filename}` : "",
     });
     await newUser.save();
 

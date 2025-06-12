@@ -14,6 +14,7 @@ interface Chapter {
   _id?: string;
   title: string;
   content: string;
+  likes: number;
  createdBy: string | User; // allow both types
   createdAt: string;
 }
@@ -66,7 +67,7 @@ export const createStory = async (title: string,  initialContent: string // 👈
 
 export const updateStory = async (id: string, story: Story): Promise<Story> => {
     const response = await apiClient.put<Story>(`/api/stories/${id}`,  
-        { content: story.content}
+        { votes: story.votes, content: story.content}
  );
     return response.data;
 };

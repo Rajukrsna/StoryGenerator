@@ -25,6 +25,7 @@ interface Chapter {
   _id?: string;
   title: string;
   content: string;
+  likes: number,
   createdBy: string | User; // allow both types
   createdAt: string;
 }
@@ -61,27 +62,24 @@ export default function CollabPage() {
     
     const handleSave = async () => {
     if (!editor || !story || !id) return;
-    const profile = await getMyProfile(); // already defined function
+    const profile = await getMyProfile(); 
     
     const newChapter: Chapter = {
-           // ObjectId (24-char hex)
-        title: `Chapter ${story.content.length + 1}`,//input the title from the user
-        content: editor.getHTML(), // HTML string
+        title: `Chapter ${story.content.length + 1}`,
+        content: editor.getHTML(), 
+        likes:0,
         createdBy:profile._id,
-          
- // replace with actual user name (maybe from auth context)
         createdAt: new Date().toISOString(),
     };
     const updatedStory: Story = {
     ...story,
     content: [...story.content, newChapter],
-    // imageUrl is already part of story, so this ensures it is included
     };
 
     try {
-        await updateStory(id, updatedStory); // Create this API function
+        await updateStory(id, updatedStory); 
         alert("Chapter added successfully!");
-        router.push("/book"); // or wherever
+        router.push("/book");
     } catch (err) {
         console.error("Failed to save new chapter:", err);
     }
