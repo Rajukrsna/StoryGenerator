@@ -27,13 +27,18 @@ interface Chapter {
   createdBy: string | User; // allow both types
   createdAt: string;
 }
+interface PendingChapter extends Chapter {
+  requestedBy: string | User;
+  status: "pending" | "approved" | "rejected";
+}
 interface Story {
     _id: string;
     title: string;
     content: Chapter[];
+  pendingChapters: PendingChapter[]; // ✅ completed
     author: Author;
     votes: number;
-    imageUrl: string;
+    imageUrl: string;   
 }
 interface Author {
     id: string;
@@ -137,10 +142,17 @@ const handleNavRead = (chapId: number) => {
         _id: id,
         title,
         content: updatedChapters,
+        pendingChapters: [], 
         author: { id: "", name: "", bio: "", profileImage: "" }, 
         votes: 0,
         imageUrl: ""
-      });
+      },
+      {title: "",
+        content: "",
+        likes: 0,
+        createdBy:"",
+        createdAt: "",}
+    );
     } catch (err) {
       console.error("Failed to update likes:", err);
     }

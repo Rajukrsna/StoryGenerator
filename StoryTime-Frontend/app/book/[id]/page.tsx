@@ -27,13 +27,18 @@ interface Author {
     bio: string;
     profileImage: string;
 }
+interface PendingChapter extends Chapter {
+  requestedBy: string | User;
+  status: "pending" | "approved" | "rejected";
+}
 interface Story {
     _id: string;
     title: string;
     content: Chapter[];
+  pendingChapters: PendingChapter[]; // ✅ completed
     author: Author;
     votes: number;
-    imageUrl: string;
+    imageUrl: string;   
 }
 
 export default function BookPage() {
@@ -53,7 +58,13 @@ export default function BookPage() {
 
         setStory(updatedStory); // Optimistic UI update
   try {
-    await updateStory(id, updatedStory); // Send update to server
+    await updateStory(id, updatedStory,{
+        title: "",
+        content: "",
+        likes: 0,
+        createdBy:"",
+        createdAt: "",
+    }); // Send update to server
   } catch (error) {
     console.error("Failed to update story votes:", error);
   }

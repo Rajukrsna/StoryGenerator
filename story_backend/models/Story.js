@@ -6,6 +6,7 @@ const contributionSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   createdAt: { type: Date, default: Date.now },
 });
+
 const chapterSchema = new mongoose.Schema({
   title: { type: String, required: true },
   content: { type: String, required: true, minlength: 10 },
@@ -16,6 +17,15 @@ const chapterSchema = new mongoose.Schema({
   },
   likes:{type: Number , default: 0},
   createdAt: { type: Date, default: Date.now }
+});
+const pendingChapterSchema = new mongoose.Schema({
+  ...chapterSchema.obj, // Spread existing fields
+  requestedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  status: {
+    type: String,
+    enum: ["pending", "approved", "rejected"],
+    default: "pending"
+  }
 });
 
 // ✅ Comment Schema
@@ -30,6 +40,11 @@ const storySchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true, minlength: 3 },
     content: [chapterSchema],
+   pendingChapters: {
+  type: [pendingChapterSchema],
+  default: [], // optional but recommended
+},
+
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

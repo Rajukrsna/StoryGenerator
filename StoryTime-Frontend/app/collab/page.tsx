@@ -35,10 +35,15 @@ interface Author {
     bio: string;
     profileImage: string;
 }
+interface PendingChapter extends Chapter {
+  requestedBy: string | User;
+  status: "pending" | "approved" | "rejected";
+}
 interface Story {
     _id: string;
     title: string;
     content: Chapter[];
+  pendingChapters: PendingChapter[]; // ✅ completed
     author: Author;
     votes: number;
     imageUrl: string;   
@@ -62,28 +67,39 @@ export default function CollabPage() {
     
     const handleSave = async () => {
     if (!editor || !story || !id) return;
-    const profile = await getMyProfile(); 
-    
-    const newChapter: Chapter = {
-        title: `Chapter ${story.content.length + 1}`,
-        content: editor.getHTML(), 
-        likes:0,
-        createdBy:profile._id,
-        createdAt: new Date().toISOString(),
-    };
-    const updatedStory: Story = {
-    ...story,
-    content: [...story.content, newChapter],
-    };
 
-    try {
-        await updateStory(id, updatedStory); 
-        alert("Chapter added successfully!");
-        router.push("/book");
-    } catch (err) {
-        console.error("Failed to save new chapter:", err);
-    }
+  const profile = await getMyProfile(); 
+
+  const newChapter: Chapter = {
+    title: `Chapter ${story.content.length + 1}`,
+    content: editor.getHTML(),
+    likes: 0,
+    createdBy: profile._id,
+    createdAt: new Date().toISOString(),
+  };
+ const updatedStory = {
+        ...story,
+        content: [...story.content, newChapter],
+      };
+  const isAuthor = story.author.id === profile._id;
+  console.log("sdfds", isAuthor)
+
+  try {
+    if (isAuthor) {
     
+      await updateStory(id, updatedStory,newChapter);
+      alert("Chapter added successfully!");
+    } else {
+        console.log("pendingchap", updatedStory,newChapter)
+      // Send chapter as request
+     await updateStory(id, updatedStory,newChapter);
+      alert("Chapter request sent for approval!");
+    }
+    router.push("/book");
+  } catch (err) {
+    console.error("Failed to save new chapter:", err);
+  }
+
 
 await updateMyProfile({//i am sending the contribution as array of objects
     contributions: [

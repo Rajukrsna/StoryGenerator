@@ -24,13 +24,19 @@ interface Author {
     bio: string;
     profileImage: string;
 }
+
+interface PendingChapter extends Chapter {
+  requestedBy: string | User;
+  status: "pending" | "approved" | "rejected";
+}
 interface Story {
     _id: string;
     title: string;
     content: Chapter[];
+  pendingChapters: PendingChapter[]; // ✅ completed
     author: Author;
     votes: number;
-    imageUrl: string;
+    imageUrl: string;   
 }
 
 export const getStories = async (
@@ -65,9 +71,9 @@ export const createStory = async (title: string,  initialContent: string // 👈
     return response.data;
 };
 
-export const updateStory = async (id: string, story: Story): Promise<Story> => {
+export const updateStory = async (id: string, story: Story, newChap: Chapter): Promise<Story> => {
     const response = await apiClient.put<Story>(`/api/stories/${id}`,  
-        { votes: story.votes, content: story.content}
+        { votes: story.votes, content: story.content, newChapter: newChap}
  );
     return response.data;
 };

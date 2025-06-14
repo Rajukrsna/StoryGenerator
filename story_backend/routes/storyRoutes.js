@@ -10,9 +10,9 @@ const router = express.Router();
 router.get("/getUserStories", protect, async (req, res) => {
   try {
     const id = req.user._id; // ✅ Fix here
-    console.log(id);
+    //console.log(id);
     const stories = await Story.find({ author: id }); 
-    console.log("found stories", stories)
+    //console.log("found stories", stories)
     // This returns an array
     res.json(stories);
   } catch (error) {
@@ -60,7 +60,7 @@ router.post("/", protect, async (req, res) => {
 router.get("/leaderboard/:title", async (req, res) => {
   try {
     const title = req.params.title;
-    console.log("i got my title", title)
+    //console.log("i got my title", title)
     const leaderboard = await User.aggregate([
       // Step 1: Unwind contributions array
       { $unwind: "$contributions" },
@@ -112,7 +112,7 @@ router.get("/leaderboard/:title", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const { search, sort } = req.query;
-    console.log("mera query",req.query)
+    //console.log("mera query",req.query)
     let filter = {};
      
     function escapeRegex(text) {
@@ -161,7 +161,7 @@ router.get("/:id", async (req, res) => {
      if (mongoose.Types.ObjectId.isValid(chapter.createdBy)) {
 
       user = await User.findById(chapter.createdBy).select("name");
-      console.log("hey",user)
+      //console.log("hey",user)
     }
       return {
         ...chapter.toObject(),
@@ -182,11 +182,10 @@ story.content = populatedContent;
 /** ✅ Update a Story (Protected) */
 router.put("/:id", protect, async (req, res) => {
   try {
+    console.log("dfdsfds")
     const { id } = req.params;
-    console.log("myID", id)
     const { content } = req.body;
     const { votes } = req.body;
-    //console.log("this is my contnent of hcp 2", content)
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid Story ID format" });
     }
@@ -195,18 +194,37 @@ router.put("/:id", protect, async (req, res) => {
         .status(400)
         .json({ message: "Title or content required for update" });
     }
-    const story = await Story.findById(id);
-    
+    const story = await Story.findById(id);    
     if (!story) return res.status(404).json({ message: "Story not found" });
-   // if (story.author.toString() !== req.user._id.toString()) {
-    //  return res
-     //   .status(403)
-      //  .json({ message: "Not authorized to edit this story" });
-   // }
+      if (story.author.toString() !== req.user._id.toString()) {
+    // Not author - add to pending requests
+    const  newChapter = req.body.newChapter;
+    console.log("these are the field of the new chapters", newChapter)
+    if (!newChapter) {
+      return res.status(400).json({ message: "Chapter data missing" });
+    }
+    if(!newChapter.title === "")
+    {story.pendingChapters = story.pendingChapters || [];
+    story.pendingChapters.push({
+      ...newChapter,
+      requestedBy: req.user._id,
+      status: "pending",
+    });
+    //console.log("mera pending chapters",story.pendingChapters)
+  }
+  else{
+     story.votes= votes||story.votes;
+     story.content = content || story.content;
+  }
+    await story.save();
+    return res.status(202).json({ message: "Chapter request sent to author for approval." });
+  }
+else{
     story.votes= votes||story.votes;
     story.content = content || story.content;
     const updatedStory = await story.save();
     res.json(updatedStory);
+}
   } catch (error) {
     console.error(error);
     res
