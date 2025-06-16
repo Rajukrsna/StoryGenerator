@@ -41,7 +41,7 @@ const storySchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true, minlength: 3 },
     content: [chapterSchema],
    pendingChapters: {
-  type: [pendingChapterSchema],
+   type: [pendingChapterSchema],
   default: [], // optional but recommended
 },
 

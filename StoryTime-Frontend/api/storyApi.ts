@@ -102,3 +102,8 @@ export const getUserStories = async():Promise<Story[]> => {
   const response = await apiClient.get<Story[]>("/api/stories/getUserStories");
   return response.data;
 }
+
+export const approveStory = async(storyId: string, chapterIndex: number): Promise<Story> =>{
+  const response = await apiClient.put<Story>(`/api/stories/${storyId}/approve-chapter/${chapterIndex}`)
+  return response.data;
+}

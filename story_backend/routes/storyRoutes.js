@@ -11,7 +11,8 @@ router.get("/getUserStories", protect, async (req, res) => {
   try {
     const id = req.user._id; // ✅ Fix here
     //console.log(id);
-    const stories = await Story.find({ author: id }); 
+        const stories = await Story.find({ author: id })
+      .populate("author", "name");
     //console.log("found stories", stories)
     // This returns an array
     res.json(stories);
@@ -203,19 +204,14 @@ router.put("/:id", protect, async (req, res) => {
     if (!newChapter) {
       return res.status(400).json({ message: "Chapter data missing" });
     }
-    if(!newChapter.title === "")
-    {story.pendingChapters = story.pendingChapters || [];
-    story.pendingChapters.push({
+      story.pendingChapters = story.pendingChapters || [];
+      story.pendingChapters.push({
       ...newChapter,
       requestedBy: req.user._id,
       status: "pending",
     });
     //console.log("mera pending chapters",story.pendingChapters)
-  }
-  else{
      story.votes= votes||story.votes;
-     story.content = content || story.content;
-  }
     await story.save();
     return res.status(202).json({ message: "Chapter request sent to author for approval." });
   }
@@ -249,6 +245,50 @@ router.delete("/:id", protect, async (req, res) => {
     res
       .status(500)
       .json({ message: "Error deleting story", error: error.message });
+  }
+});
+router.put("/:id/approve-chapter/:chapterIndex", protect, async (req, res) => {
+  try {
+    const { id, chapterIndex } = req.params;
+    console.log(id, chapterIndex);
+    const story = await Story.findById(id);
+    if (!story) return res.status(404).json({ message: "Story not found" });
+
+    // Check if current user is the story author
+    if (story.author.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Only the author can approve chapters." });
+    }
+
+    const index = parseInt(chapterIndex, 10);
+    const pendingChapter = story.pendingChapters[index];
+    console.log("pen", pendingChapter);
+    if (!pendingChapter) {
+      return res.status(404).json({ message: "Pending chapter not found" });
+    }
+
+    // ✅ Destructure only allowed fields for content
+    const { title, content, createdBy, createdAt, likes } = pendingChapter;
+
+    // ✅ Push clean version to main content
+    story.content.push({
+      title,
+      content,
+      createdBy,
+      createdAt,
+      likes
+    });
+
+    // ✅ Remove from pendingChapters
+    story.pendingChapters.splice(index, 1);
+
+    // ✅ Save story
+    await story.save();
+
+    res.status(200).json({ message: "Chapter approved and added to story", story });
+
+  } catch (error) {
+    console.error("Error approving chapter:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 });
 

@@ -38,7 +38,7 @@ const upload = multer({ storage });
 
 router.get("/all", async (req, res) => {
   try {
-    console.log("hi");
+   // console.log("hi");
     const authors = await User.find({}, "name bio profilePicture");
     //console.log(authors);
 
@@ -77,7 +77,7 @@ router.get("/leaderboard", async (req, res) => {
 router.post("/register",upload.single("profilePicture"), async (req, res) => {
   try {
     const { name, email, password, googleId } = req.body;
-    console.log("profile Picture - ", req.file)
+    //console.log("profile Picture - ", req.file)
 
     if (!email || (!password && !googleId)) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -129,7 +129,7 @@ router.post("/login", async (req, res) => {
         return res.status(401).json({ message: "Invalid credentials" });
 
     const token = generateToken(user._id);
-    console.log("toment",token)  
+   // console.log("toment",token)  
     res.json({ _id: user._id, name: user.name, email: user.email, token });
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error: error.message });
@@ -227,13 +227,13 @@ router.put("/profile", protect, async (req, res) => {
     user.email = req.body.email || user.email;
     user.bio = req.body.bio || user.bio;
     user.profilePicture = req.body.profilePicture || user.profilePicture;
-      console.log("hey see the contributions",req.body.contributions.title, req.body.contributions.score)
+     // console.log("hey see the contributions",req.body.contributions.title, req.body.contributions.score)
 
     if (Array.isArray(req.body.contributions)) {
   req.body.contributions.forEach((c) => {
     if (c.title && typeof c.score === 'number') {
-      console.log(c.title);
-      console.log(c.score)
+     // console.log(c.title);
+      //console.log(c.score)
       user.contributions.push(c);
     }
   });
