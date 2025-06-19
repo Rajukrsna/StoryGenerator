@@ -1,10 +1,12 @@
 import apiClient from "./axiosInstance";
 
 interface LoginResponse {
+  _id:string,
   token: string;
 }
 
 interface LoginResult {
+  _id: string;
   success: boolean;
   message?: string;
   token?: string;
@@ -30,7 +32,7 @@ export const login = async (email: string, password: string): Promise<LoginResul
     
     console.log("✅ Login successful, token stored.");
 
-    return { success: true, token };
+    return { success: true, token, _id:response.data._id };
   } catch (error: any) {
     console.error("❌ Error occurred during login:", error);
 
@@ -44,7 +46,7 @@ export const login = async (email: string, password: string): Promise<LoginResul
       errorMessage = "Server unreachable. Please check your internet connection.";
     }
 
-    return { success: false, message: errorMessage };
+    return { success: false, message: errorMessage ,_id:"notfound"};
   }
 };
 

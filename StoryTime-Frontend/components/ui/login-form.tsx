@@ -28,7 +28,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
         setError( "Invalid credentials. Please try again.");
         return;
     }
-
+            localStorage.setItem("userId", response._id)
             router.push("/homepage");
         } catch (error) {
             console.error("Login failed", error);

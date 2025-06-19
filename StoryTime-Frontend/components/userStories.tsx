@@ -3,8 +3,8 @@ import { Button } from "./ui/button";
 import { CardHorizontal } from "./ui/card";
 import Image from "next/image";
 import { getUserStories } from "@/api/storyApi"; // corrected path
-import {approveStory} from "@/api/storyApi";
-
+import {approveStory,rejectStory} from "@/api/storyApi";
+import { updateContribution } from "@/api/profile";
 interface Contribution {
   title: string;
   score: number;
@@ -49,6 +49,7 @@ export default function UserStories() {
   const [stories, setStories] = useState<Story[]>([]);
 const [isModalOpen, setIsModalOpen] = useState(false);
 const [selectedChapter, setSelectedChapter] = useState<{ title: string; content: string } | null>(null);
+const userId= localStorage.getItem("userId") || undefined;
   useEffect(() => {
     const fetchStories = async () => {
       try {
@@ -64,11 +65,24 @@ const [selectedChapter, setSelectedChapter] = useState<{ title: string; content:
 
     fetchStories();
   }, []);
-  const handleApprove = async (storyId: string, chapterIndex: number) => {
+  const handleApprove = async (storyId: string, chapterIndex: number, title: string) => {
   try {
      await approveStory(storyId, chapterIndex)
     alert("Chapter approved");
+
     const updatedStories = await getUserStories();
+    
+    await updateContribution({
+        _id: userId,
+        contributions: [
+        {
+          title: title ||"N/A", 
+          score: 1,
+        }
+      ]
+      ,
+        },
+);
     setStories(updatedStories);
   } catch (err) {
     console.error(err);
@@ -78,10 +92,7 @@ const [selectedChapter, setSelectedChapter] = useState<{ title: string; content:
 
 const handleReject = async (storyId: string, chapterIndex: number) => {
   try {
-    const res = await fetch(`/api/stories/${storyId}/reject-chapter/${chapterIndex}`, {
-      method: "DELETE",
-    });
-    if (!res.ok) throw new Error("Failed to reject");
+    await rejectStory(storyId, chapterIndex)
     alert("Chapter rejected");
     const updatedStories = await getUserStories();
     setStories(updatedStories);
@@ -130,7 +141,7 @@ return (
                       <div className="flex gap-2 mt-2">
                         <Button
                           variant="secondary"
-                          onClick={() => handleApprove(story._id, index)}
+                          onClick={() => handleApprove(story._id, index,story.title)}
                         >
                           Approve
                         </Button>

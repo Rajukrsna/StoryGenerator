@@ -61,36 +61,24 @@ router.post("/", protect, async (req, res) => {
 router.get("/leaderboard/:title", async (req, res) => {
   try {
     const title = req.params.title;
-    //console.log("i got my title", title)
     const leaderboard = await User.aggregate([
-      // Step 1: Unwind contributions array
       { $unwind: "$contributions" },
-
-      // Step 2: Filter only the contributions matching the given title
       { $match: { "contributions.title": title } },
-
-      // Step 3: Group by user _id and sum the score
       {
         $group: {
-          _id: "$_id", // group by user id
+          _id: "$_id", 
           totalScore: { $sum: "$contributions.score" },
         },
       },
-
-      // Step 4: Sort by totalScore descending
       { $sort: { totalScore: -1 } },
-
-      // Step 5: Limit to top 10
       { $limit: 10 },
     ]);
 
-    // Step 6: Populate user details
     const populatedLeaderboard = await User.populate(leaderboard, {
       path: "_id",
       select: "name profilePicture",
     });
 
-    // Step 7: Send formatted response
     res.json(
       populatedLeaderboard.map((entry) => ({
         userId: entry._id._id,
@@ -109,13 +97,11 @@ router.get("/leaderboard/:title", async (req, res) => {
 });
 
 
-/** ✅ Get All Stories with Optional Search & Sorting */
+/**  Get All Stories with Optional Search & Sorting */
 router.get("/", async (req, res) => {
   try {
     const { search, sort } = req.query;
-    //console.log("mera query",req.query)
     let filter = {};
-     
     function escapeRegex(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -126,16 +112,11 @@ if (search?.trim()) {
     { title: { $regex: safeSearch, $options: "i" } },
   ];
 }
-
-
     let query = Story.find(filter).populate("author", "name profilePicture");
-
     if (sort === "latest") query = query.sort({ createdAt: -1 });
     else if (sort === "oldest") query = query.sort({ createdAt: 1 });
     else if (sort === "top") query = query.sort({ votes: -1 });
-
     const stories = await query.lean();
-    
     res.json(stories);
   } catch (error) {
     console.error(error);
@@ -144,25 +125,20 @@ if (search?.trim()) {
       .json({ message: "Error fetching stories", error: error.message });
   }
 });
-
-/** ✅ Get a Single Story by ID */
+/** Get a Single Story by ID */
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    //console.log(id);
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid Story ID format" });
     }
    const story = await Story.findById(id).populate("author", "name");
-  // console.log("the story before",story)
    let user  = null;
    const populatedContent = await Promise.all(
     story.content.map(async (chapter) => {
      if (mongoose.Types.ObjectId.isValid(chapter.createdBy)) {
 
       user = await User.findById(chapter.createdBy).select("name");
-      //console.log("hey",user)
     }
       return {
         ...chapter.toObject(),
@@ -170,7 +146,6 @@ router.get("/:id", async (req, res) => {
       };
   })
 );
-//console.log("after", populatedContent)
 story.content = populatedContent;
 
     res.json(story);
@@ -180,10 +155,9 @@ story.content = populatedContent;
   }
 });
 
-/** ✅ Update a Story (Protected) */
+/**  Update a Story (Protected) */
 router.put("/:id", protect, async (req, res) => {
   try {
-    console.log("dfdsfds")
     const { id } = req.params;
     const { content } = req.body;
     const { votes } = req.body;
@@ -210,7 +184,6 @@ router.put("/:id", protect, async (req, res) => {
       requestedBy: req.user._id,
       status: "pending",
     });
-    //console.log("mera pending chapters",story.pendingChapters)
      story.votes= votes||story.votes;
     await story.save();
     return res.status(202).json({ message: "Chapter request sent to author for approval." });
@@ -292,6 +265,37 @@ router.put("/:id/approve-chapter/:chapterIndex", protect, async (req, res) => {
   }
 });
 
+// ✅ In your Express router (e.g., storyRoutes.js)
+router.delete("/:id/reject-chapter/:chapterIndex", protect, async (req, res) => {
+  try {
+    const { id, chapterIndex } = req.params;
+    const story = await Story.findById(id);
+
+    if (!story) {
+      return res.status(404).json({ message: "Story not found" });
+    }
+
+    // Ensure only the author can reject
+    if (story.author.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Only the author can reject chapters." });
+    }
+
+    const index = parseInt(chapterIndex, 10);
+    if (isNaN(index) || index < 0 || index >= story.pendingChapters.length) {
+      return res.status(400).json({ message: "Invalid chapter index" });
+    }
+
+    // Remove the pending chapter
+    story.pendingChapters.splice(index, 1);
+
+    await story.save();
+
+    res.status(200).json({ message: "Chapter rejected and removed from pending list", story });
+  } catch (error) {
+    console.error("Error rejecting chapter:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+});
 
 
 export default router;

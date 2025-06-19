@@ -37,6 +37,10 @@ export const updateMyProfile = async (data: Partial<User> & { password?: string 
   return response.data;
 };
 
+export const updateContribution = async(data:Partial<User> & { password?: string}): Promise<User>=>{
+  const response = await apiClient.put<User>("/api/users/updateContribution", data)
+  return response.data;
+}
 interface UploadResponse {
   message: string;
   filePath: string;

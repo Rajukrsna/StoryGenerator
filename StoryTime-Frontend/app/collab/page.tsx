@@ -14,7 +14,6 @@ import { useRouter } from "next/navigation";
 import { getStory } from "@/api/storyApi";
 import {updateStory} from "@/api/storyApi";
 import {createAIStory} from "@/api/aiApi";
-import { updateMyProfile } from "@/api/profile";
 import {getMyProfile} from "@/api/profile"
 
 interface Contribution {
@@ -99,19 +98,6 @@ export default function CollabPage() {
   } catch (err) {
     console.error("Failed to save new chapter:", err);
   }
-
-
-await updateMyProfile({//i am sending the contribution as array of objects
-    contributions: [
-    {
-      title: title||"No Chapter Title Found", 
-      score: 1,
-    },
-  ],
-
-  
-  
-});
   
     };
 

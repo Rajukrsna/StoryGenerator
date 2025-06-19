@@ -42,16 +42,14 @@ app.use(
   })
 );
 
-// ✅ Initialize Passport
+
 app.use(passport.initialize());
 app.use(passport.session());
-
-// ✅ Routes
 app.use("/api/ai-suggestions", aiRoute);
 app.use("/api/users", userRoutes);
 app.use("/api/stories", storyRoutes);
 
-// ✅ Google Auth Routes
+
 app.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
