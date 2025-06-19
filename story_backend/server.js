@@ -49,7 +49,6 @@ app.use("/api/ai-suggestions", aiRoute);
 app.use("/api/users", userRoutes);
 app.use("/api/stories", storyRoutes);
 
-
 app.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })

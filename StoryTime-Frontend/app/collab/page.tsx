@@ -87,9 +87,9 @@ export default function CollabPage() {
     if (isAuthor) {
     
       await updateStory(id, updatedStory,newChapter);
-      alert("Chapter added successfully!");
+      alert("Chapter added successfully!"); 
     } else {
-        console.log("pendingchap", updatedStory,newChapter)
+        console.log("pendingchap", updatedStory, newChapter)
       // Send chapter as request
      await updateStory(id, updatedStory,newChapter);
       alert("Chapter request sent for approval!");

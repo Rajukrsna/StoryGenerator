@@ -4,7 +4,6 @@ import { CardHorizontal } from "./ui/card";
 import Image from "next/image";
 import { getUserStories } from "@/api/storyApi"; // corrected path
 import {approveStory,rejectStory} from "@/api/storyApi";
-import { updateContribution } from "@/api/profile";
 interface Contribution {
   title: string;
   score: number;
@@ -67,28 +66,19 @@ const userId= localStorage.getItem("userId") || undefined;
   }, []);
   const handleApprove = async (storyId: string, chapterIndex: number, title: string) => {
   try {
-     await approveStory(storyId, chapterIndex)
+    await approveStory(storyId, chapterIndex);
     alert("Chapter approved");
 
     const updatedStories = await getUserStories();
-    
-    await updateContribution({
-        _id: userId,
-        contributions: [
-        {
-          title: title ||"N/A", 
-          score: 1,
-        }
-      ]
-      ,
-        },
-);
     setStories(updatedStories);
+
+   
   } catch (err) {
     console.error(err);
     alert("Error approving chapter");
   }
 };
+
 
 const handleReject = async (storyId: string, chapterIndex: number) => {
   try {

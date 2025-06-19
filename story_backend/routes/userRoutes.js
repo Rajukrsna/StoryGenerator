@@ -225,14 +225,6 @@ router.put("/profile", protect, async (req, res) => {
     user.email = req.body.email || user.email;
     user.bio = req.body.bio || user.bio;
     user.profilePicture = req.body.profilePicture || user.profilePicture;
-    if (Array.isArray(req.body.contributions)) {
-    req.body.contributions.forEach((c) => {
-      if (c.title && typeof c.score === 'number') {
-        user.contributions.push(c);
-      }
-  });
-}
-
     if (req.body.password) {
       user.password = req.body.password;
       token = generateToken(user._id);
@@ -254,27 +246,6 @@ router.put("/profile", protect, async (req, res) => {
       .json({ message: "Error updating profile", error: error.message });
   }
 });
-
-router.put("/updateContribution",  protect, async (req, res)=>{
-  try{
-  const user = await User.findById(req.body._id);
-if (Array.isArray(req.body.contributions)) {
-    req.body.contributions.forEach((c) => {
-      if (c.title && typeof c.score === 'number') {
-        user.contributions.push(c);
-      }
-  });
-}
-
-await user.save();
-
-  }
-  catch(err)
-  {
-    console.log("error while updating the contributions of the user!",err)
-  }
-
-} )
 router.get("/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
@@ -286,8 +257,6 @@ router.get("/:id", async (req, res) => {
       .status(500)
       .json({ message: "Error fetching user profile", error: error.message });
   }
-
- 
 });
 
 

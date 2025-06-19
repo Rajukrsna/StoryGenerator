@@ -223,7 +223,7 @@ router.delete("/:id", protect, async (req, res) => {
 router.put("/:id/approve-chapter/:chapterIndex", protect, async (req, res) => {
   try {
     const { id, chapterIndex } = req.params;
-    console.log(id, chapterIndex);
+    //console.log(id, chapterIndex);
     const story = await Story.findById(id);
     if (!story) return res.status(404).json({ message: "Story not found" });
 
@@ -234,10 +234,25 @@ router.put("/:id/approve-chapter/:chapterIndex", protect, async (req, res) => {
 
     const index = parseInt(chapterIndex, 10);
     const pendingChapter = story.pendingChapters[index];
-    console.log("pen", pendingChapter);
     if (!pendingChapter) {
       return res.status(404).json({ message: "Pending chapter not found" });
     }
+    const user = await User.findById(pendingChapter.requestedBy)
+  const contributions= [
+        {
+          title: story.title || "N/A",
+          score: 1,
+        }];
+            console.log("contri user", user)
+   if (Array.isArray(contributions)) {
+     contributions.forEach((c) => {
+        if (c.title && typeof c.score === 'number') {
+          user.contributions.push(c);
+        }
+      });
+    }
+
+     await user.save();
 
     // ✅ Destructure only allowed fields for content
     const { title, content, createdBy, createdAt, likes } = pendingChapter;
