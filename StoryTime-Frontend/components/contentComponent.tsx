@@ -12,6 +12,15 @@ import { getStory } from "@/api/storyApi"
 import {getLeaderBoard} from "@/api/storyApi"
 import React, { Suspense } from 'react';
 import {updateStory} from "@/api/storyApi"
+import { FaBookOpen, FaUsers, FaRankingStar } from "react-icons/fa6"
+import { MdCreate } from "react-icons/md"
+import { HiOutlineSearch } from "react-icons/hi"
+import {  ArrowRight } from "lucide-react";
+import { FaUserCircle } from "react-icons/fa";
+import { MdCalendarToday } from "react-icons/md";
+import { FaMedal, FaUserPlus, FaSearch } from "react-icons/fa";
+import { HiOutlineStar } from "react-icons/hi";
+
 // Correct Chapter interface
 interface User {
   _id: string;
@@ -66,39 +75,71 @@ export default function ContentComponent({ id, story , title}: { id: string, sto
         router.push(`/collab?id=${encodeURIComponent(id)}&title=${encodeURIComponent(title)}`)
     }
 
-    return (
-        <main className="min-h-screen px-6 py-4">
-            <nav className="flex items-center justify-between pb-4">
-                <div className="flex ">
-                    <h1 className="text-2xl font-bold mr-5">Contents •</h1>
-                    <ToggleGroup
-                        type="single"
-                        value={activeTab}
-                        onValueChange={(value) => setActiveTab(value as "read" | "collab" | "leaderboard")}
-                    >
+   return (
+    <main className="min-h-screen px-6 py-6 bg-white font-sans">
+      {/* Navigation */}
+      <nav className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b pb-4">
+        {/* Left: Title + Tabs */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+            Contents <span className="text-primary text-2xl">•</span>
+          </h1>
+          <ToggleGroup
+            type="single"
+            value={activeTab}
+            onValueChange={(value) =>
+              setActiveTab(value as "read" | "collab" | "leaderboard")
+            }
+            className="flex gap-2"
+          >
+            <ToggleGroupItem value="read" className="flex items-center gap-2">
+              <FaBookOpen /> Read
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="collab"
+              className="flex items-center gap-2"
+            >
+              <FaUsers /> Collab
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="leaderboard"
+              className="flex items-center gap-2"
+            >
+              <FaRankingStar /> Leaderboard
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
 
-                        <ToggleGroupItem value="read">Read</ToggleGroupItem>
-                        <ToggleGroupItem value="collab">Collab</ToggleGroupItem>
-                        <ToggleGroupItem value="leaderboard">Leaderboard</ToggleGroupItem>
+        {/* Right: Search + Buttons */}
+        <div className="flex items-center gap-3">
+          <div className="relative w-64">
+            <Input
+              placeholder="Search"
+              className="pl-10"
+            />
+            <HiOutlineSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          </div>
+          <Button variant="outline" size="icon" className="hover:bg-gray-100">
+            <Filter size={18} />
+          </Button>
+          {activeTab === "collab" && (
+            <Button
+              onClick={handleNavCollab}
+              className="flex items-center gap-2 bg-primary text-white hover:bg-primary/90 transition"
+            >
+              <MdCreate size={18} />
+              Create Chapter
+            </Button>
+          )}
+        </div>
+      </nav>
 
-                    </ToggleGroup>
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <Input placeholder="Search" className="w-64" />
-                    <Button variant="outline" size="icon">
-                        <Filter size={20} />
-                    </Button>
-                    {activeTab === "collab" && <Button onClick={handleNavCollab}>
-                        Create Chapter
-                    </Button>}
-                </div>
-            </nav>
-
-            <section className="mt-6">
-                       {/* Wrap each tab content with Suspense */}
+      {/* Tab Content */}
+      <section className="mt-8">
         <Suspense fallback={<div>Loading Chapters...</div>}>
-          {activeTab === "read" && <ChapterList title={title}  chapters={chapters} id={id} />}
+          {activeTab === "read" && (
+            <ChapterList title={title} chapters={chapters} id={id} />
+          )}
         </Suspense>
 
         <Suspense fallback={<div>Loading Collaboration...</div>}>
@@ -108,10 +149,9 @@ export default function ContentComponent({ id, story , title}: { id: string, sto
         <Suspense fallback={<div>Loading Leaderboard...</div>}>
           {activeTab === "leaderboard" && <LeaderboardList title={title} />}
         </Suspense>
-
-            </section>
-        </main>
-    );
+      </section>
+    </main>
+  )
 }
 
 function ChapterList({title,chapters:initialChapters,id }: {title: string, chapters: { id: number; title: string; content: string; createdBy: string | User; createdAt: string ; likes: number; liked: boolean }[], id: string }) {
@@ -158,44 +198,51 @@ const handleNavRead = (chapId: number) => {
     }
   };
 
-  return (
-    <div className="grid gap-6">
-      {chapters.map((chapter) => (
-        <CardHorizontal
-          onClick={() => handleNavRead(chapter.id)}
-          key={chapter.id}
-          className="p-4 flex items-center justify-between cursor-pointer"
-        >
-          <div className="w-16 h-16 bg-gray-300 rounded-lg flex items-center justify-center overflow-hidden">
-            <BookOpen className="w-[50%] h-[50%] object-cover" />
-          </div>
+ return (
+  <div className="grid gap-6">
+    {chapters.map((chapter) => (
+      <CardHorizontal
+        onClick={() => handleNavRead(chapter.id)}
+        key={chapter.id}
+        className="p-4 flex items-center justify-between rounded-xl border hover:shadow-md transition-all duration-300 group hover:-translate-y-[2px] cursor-pointer bg-white"
+      >
+        {/* Icon Box */}
+        <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center transition-all duration-300 group-hover:bg-blue-100">
+          <BookOpen className="w-[50%] h-[50%]  group-hover:scale-110 transition-transform" />
+        </div>
 
-          <div className="flex-1 pl-4">
-            <h2 className="text-xl font-semibold">{chapter.title}</h2>
-            <p className="text-sm text-gray-500">
-              Created By -{" "}
-              {typeof chapter.createdBy === "string"
-                ? chapter.createdBy
-                : chapter.createdBy.name}
-            </p>
-          </div>
+        {/* Chapter Info */}
+        <div className="flex-1 px-4">
+          <h2 className="text-lg font-semibold group-hover:text-blue-600 transition-colors duration-300">
+            {chapter.title}
+          </h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Created By —{" "}
+            {typeof chapter.createdBy === "string"
+              ? chapter.createdBy
+              : chapter.createdBy.name}
+          </p>
+        </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-gray-500">{chapter.likes}</span>
-            <Heart
-              className={`text-gray-400 ${
-                chapter.liked ? "fill-red-500 text-red-500" : ""
-              }`}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleLike(chapter.id);
-              }}
-            />
-          </div>
-        </CardHorizontal>
-      ))}
-    </div>
-  );
+        {/* Like Section */}
+        <div className="flex items-center gap-2">
+          <span className="text-gray-500">{chapter.likes}</span>
+          <Heart
+            className={`w-5 h-5 transition-colors duration-300 ${
+              chapter.liked
+                ? "text-red-500 fill-red-500"
+                : "text-gray-400 hover:text-red-400"
+            } hover:scale-110 active:scale-95`}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleLike(chapter.id);
+            }}
+          />
+        </div>
+      </CardHorizontal>
+    ))}
+  </div>
+)
 }
 
 function CollabList({ id}: { id: string}) {
@@ -217,26 +264,36 @@ function CollabList({ id}: { id: string}) {
 
   if (!story) return <p>Loading...</p>;
 
-  return (
-    <div className="grid gap-6">
-      {story.content.map((content) => (
-        <CardHorizontal
-          key={content._id}
-          className="p-4 flex items-center justify-between gap-4 cursor-pointer"
-        >
-          <div className="w-16 h-16 bg-gray-300 rounded-full overflow-hidden flex items-center justify-center">
-            <Pencil className="w-[50%] h-[50%] object-cover" />
-          </div>
-          <div className="flex-1">
-            <h2 className="text-xl font-semibold">
+ return (
+  <div className="grid gap-6">
+    {story.content.map((content) => (
+      <CardHorizontal
+        key={content._id}
+        className="p-4 flex items-center justify-between gap-4 cursor-pointer rounded-xl border hover:shadow-md hover:-translate-y-1 transition-all duration-300 bg-white group"
+      >
+        {/* Left Icon Avatar */}
+        <div className="w-16 h-16  rounded-full overflow-hidden flex items-center justify-center shadow-sm group-hover:bg-blue-200 transition">
+          <Pencil className="w-6 h-6 group-hover:rotate-6 transition-transform" />
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 px-2">
+          <h2 className="text-lg font-semibold  flex items-center gap-2">
+            <FaUserCircle className="text-gray-500" />{" "}
             {typeof content.createdBy === "object" && content.createdBy?.name}
-            </h2>           
-             <p className="text-sm text-gray-500">Contributed on {content.title}</p>
-          </div>
-        </CardHorizontal>
-      ))}
-    </div>
-  );
+          </h2>
+          <p className="text-sm text-gray-600 mt-1 flex items-center gap-1">
+            <MdCalendarToday className="text-gray-400" />
+            Contributed on <span className="font-medium ml-1">{content.title}</span>
+          </p>
+        </div>
+
+        {/* Right Arrow */}
+        <ArrowRight className="text-gray-400 group-hover:text-blue-500 transition-transform group-hover:translate-x-1" />
+      </CardHorizontal>
+    ))}
+  </div>
+);
 }
 
 interface LeaderboardEntry {
@@ -267,36 +324,54 @@ interface LeaderboardEntry {
     fetchLeaderboard();
   }, [title]);
 
-  return (
-    <div className="grid gap-6">
-      {leaderboard.map((entry, index) => (
-        <CardHorizontal key={entry.userId} className="p-4 flex items-center gap-4">
-          <h2 className="text-2xl font-bold">{index + 1}</h2>
+ return (
+  <div className="grid gap-6">
+    {leaderboard.map((entry, index) => (
+      <CardHorizontal
+        key={entry.userId}
+        className="p-4 flex items-center gap-6 rounded-2xl shadow-md hover:shadow-lg transition-shadow bg-white"
+      >
+        {/* Rank */}
+        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-100 text-yellow-700 text-lg font-bold">
+          <FaMedal className="mr-1" />
+          {index + 1}
+        </div>
 
-          <div className="w-16 h-16 bg-gray-300 rounded-full overflow-hidden relative">
-            <Image
-              src={entry.profilePicture || "/default-user.png"}
-              alt={entry.name}
-              fill
-              className="object-cover rounded-full"
-            />
-          </div>
+        {/* Profile Picture */}
+        <div className="w-16 h-16 rounded-full overflow-hidden relative ring-2 ring-black-500">
+          <Image
+            src={entry.profilePicture || "/default-user.png"}
+            alt={entry.name}
+            fill
+            className="object-cover rounded-full"
+          />
+        </div>
 
-          <div className="flex-1">
-            <p className="text-lg font-semibold">{entry.name}</p>
-            <p className="text-sm text-gray-500">
-              {entry.totalScore} Contribution{entry.totalScore !== 1 ? "s" : ""}
-            </p>
-          </div>
+        {/* User Info */}
+        <div className="flex-1 min-w-0">
+          <p className="text-lg font-semibold truncate">{entry.name}</p>
+          <p className="text-sm text-gray-500 flex items-center gap-1">
+            <HiOutlineStar className="text-yellow-600" />
+            {entry.totalScore} Contribution{entry.totalScore !== 1 ? "s" : ""}
+          </p>
+        </div>
 
-          <div className="flex flex-col gap-2">
-            <Button size="sm">Follow</Button>
-            <Button onClick={handleNavAuthor} variant="outline" size="sm">
-              Search
-            </Button>
-          </div>
-        </CardHorizontal>
-      ))}
-    </div>
-  );
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-2">
+          <Button size="sm" className="flex items-center gap-2">
+            <FaUserPlus /> Follow
+          </Button>
+          <Button
+            onClick={handleNavAuthor}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <FaSearch /> Search
+          </Button>
+        </div>
+      </CardHorizontal>
+    ))}
+  </div>
+);
 }

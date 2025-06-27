@@ -77,62 +77,94 @@ const handleUpload = async () => {
       alert("Profile picture updated!");
   };
   return (
-    <main className="min-h-screen bg-white">
-      <Navbar />
-      <div className="flex-col items-center p-10">
-        <div className="flex items-center gap-10">
-          {/* Profile Picture */}
-          <div className="flex flex-col items-center text-center mr-10 w-1/3">
-            <div className="relative w-40 h-40 overflow-hidden rounded-full bg-gray-300 mb-4">
-              <Image
-                src={preview}
-                alt="Profile Picture"
-                fill
-                className="object-cover rounded-full"
+   <main className="min-h-screen bg-white text-black">
+  <Navbar />
+  <section className="px-6 sm:px-10 py-10 max-w-6xl mx-auto">
+    {/* Profile Section */}
+    <div className="flex flex-col lg:flex-row items-center lg:items-start gap-12">
+      
+      {/* Profile Picture + Upload */}
+      <div className="flex flex-col items-center text-center w-full lg:w-1/3">
+        <div className="relative w-40 h-40 rounded-full overflow-hidden bg-gray-200 shadow-inner mb-4">
+          <Image
+            src={preview}
+            alt="Profile Picture"
+            fill
+            className="object-cover rounded-full"
+          />
+        </div>
+        <Input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="w-full max-w-xs"
+        />
+        <Button
+          variant="link"
+          onClick={handleUpload}
+          className="text-sm mt-2 hover:underline"
+        >
+          Change Profile Picture
+        </Button>
+        <p className="text-xs text-gray-500 mt-1">
+          Choose a picture to represent you
+        </p>
+      </div>
+
+      {/* Divider */}
+      <div className="hidden lg:block w-px bg-gray-200 h-64" />
+
+      {/* Form */}
+      <div className="w-full lg:w-2/3">
+        <Card className="w-full max-w-xl mx-auto shadow-sm border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-2xl font-semibold text-black">User Account</CardTitle>
+            <CardDescription className="text-sm text-gray-600">
+              Update your name and email information
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder={profile?.name || "Your name"}
+                className="text-sm"
               />
             </div>
-            <Input type="file" accept="image/*" onChange={handleFileChange} />
-            <Button variant="link"  onClick={handleUpload}>Change Profile Picture</Button>
-            <h1 className="text-sm text-gray-600">Choose a picture to show</h1>
-          </div>
 
-          <div className="w-px bg-gray-300 h-48 my-4" />
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder={profile?.email || "Your email"}
+                className="text-sm"
+              />
+            </div>
+          </CardContent>
 
-          {/* Profile Form */}
-          <div className="w-2/3 flex justify-center ml-10">
-            <Card className="w-full max-w-lg p-6">
-              <CardHeader>
-                <CardTitle className="text-2xl">User Account</CardTitle>
-                <CardDescription>
-                  Enter your name and email to edit your profile
-                </CardDescription>
-              </CardHeader>
-
-              <CardContent className="space-y-6">
-                <div className="grid gap-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input id="name" type="text" placeholder={profile?.name || "Name"} />
-                </div>
-
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder={profile?.email || "Email"} />
-                </div>
-              </CardContent>
-
-              <CardFooter className="pt-4 flex flex-col gap-5">
-                <Button className="w-full py-3 text-lg">Update Account</Button>
-                <Button className="w-full py-3 text-lg">Sign Out</Button>
-              </CardFooter>
-            </Card>
-          </div>
-        </div>
-
-        <div className="p-10">
-          <h1 className="text-4xl font-bold pt-10 pb-4">Your Stories</h1>
-          <UserStories />
-        </div>
+          <CardFooter className="pt-4 flex flex-col gap-4">
+            <Button className="w-full py-3 text-base font-medium bg-black text-white hover:bg-gray-800 transition">
+              Update Account
+            </Button>
+            <Button className="w-full py-3 text-base font-medium" variant="outline">
+              Sign Out
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
-    </main>
+    </div>
+
+    {/* Your Stories */}
+    <div className="mt-16">
+      <h1 className="text-3xl sm:text-4xl font-bold mb-6">Your Stories</h1>
+      <UserStories />
+    </div>
+  </section>
+</main>
+
   );
 }

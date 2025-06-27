@@ -85,43 +85,60 @@ export default function BookPage() {
     if (!story) {
         return <p className="text-center mt-10 text-gray-500"> Loading story...</p>;
     }
-    return (
-        <main className="min-h-screen bg-white">
-            <Navbar />
-            <div className="flex-col items-center">
-            <div
-            className="w-full flex items-center pb-10 bg-cover bg-center"
-            style={{
-                backgroundImage: `url(${story.imageUrl})`,
-                backgroundRepeat: "no-repeat",
-            }}
-            >                 
-                        <div className="m-10 p-6 flex flex-col">
-                        <h1 className="text-7xl font-bold text-white pb-5">{story.title}</h1>
-                        <h2 className="pl-3 text-white text-2xl">by {story.author ? (typeof story.author === "string" ? story.author : story.author.name) : "Unknown"}</h2>
-                        <div className="flex gap-1.5 pl-3">
-                            <div className="flex  text-white flex-col items-center">
-                        <ArrowBigUp
-                            size={30}
-                            className="rounded-full bg-gray-400 mt-2 cursor-pointer"
-                            onClick={() => handleUpdateStory(1)} // 👈 Pass a function, not a call
-                            />
-                            <h1>{story.votes}</h1>
+   return (
+  <main className="min-h-screen bg-white text-black">
+    <Navbar />
 
-                        <ArrowBigDown
-                            size={30}
-                            className="mt-2 cursor-pointer"
-                            onClick={() => handleUpdateStory(-1)} // 👈 Correct downvote
-                            />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="mt-10 h-px bg-gray-300 my-4 max-w-screen-2xl mx-auto" />
-                <div className="text-black p-10">
-                    <ContentComponent id={id} story={story.content} title={story.title} />
-                </div>
-            </div>
-        </main>
-    );
+    {/* Hero Section with Votes Inside */}
+    <div
+      className="w-full min-h-[420px] flex items-end bg-cover bg-center relative px-4 sm:px-10"
+      style={{
+        backgroundImage: `url(${story.imageUrl})`,
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      {/* Overlay for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-transparent" />
+
+      {/* Content Container */}
+      <div className="relative z-10 flex items-end gap-6 py-10 max-w-7xl w-full">
+        {/* Vote Box */}
+        <div className="flex flex-col items-center gap-2 bg-white/80 backdrop-blur-sm px-3 py-4 rounded-lg shadow-md">
+          <ArrowBigUp
+            size={28}
+            className="cursor-pointer text-black hover:scale-110 transition-transform"
+            onClick={() => handleUpdateStory(1)}
+          />
+          <span className="text-lg font-semibold">{story.votes}</span>
+          <ArrowBigDown
+            size={28}
+            className="cursor-pointer text-black hover:scale-110 transition-transform"
+            onClick={() => handleUpdateStory(-1)}
+          />
+        </div>
+
+        {/* Title + Author */}
+        <div className="text-white">
+          <h1 className="text-4xl md:text-6xl font-bold mb-3">{story.title}</h1>
+          <h2 className="text-lg md:text-2xl pl-1">
+            by{" "}
+            {story.author
+              ? typeof story.author === "string"
+                ? story.author
+                : story.author.name
+              : "Unknown"}
+          </h2>
+        </div>
+      </div>
+    </div>
+
+    {/* Divider */}
+    <div className="mt-10 h-px bg-gray-300 my-4 max-w-screen-2xl mx-auto" />
+
+    {/* Content stays untouched */}
+    <div className="text-black p-10">
+      <ContentComponent id={id} story={story.content} title={story.title} />
+    </div>
+  </main>
+);
 }

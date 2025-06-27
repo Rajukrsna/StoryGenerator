@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { login } from "@/api/login";
+import { FaGoogle } from "react-icons/fa";
 import React, { useState } from "react";
 
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
@@ -35,7 +36,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
             setError("Login failed. Please check your credentials and try again.");
         }
     };
-
+  <Card className="p-8 w-full max-w-lg"></Card>
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card className="p-8 w-full max-w-lg">

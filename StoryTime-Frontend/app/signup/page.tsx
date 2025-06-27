@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { FaSignInAlt } from "react-icons/fa"; // Import at the top
+
 import {
     Card,
     CardHeader,
@@ -46,88 +48,113 @@ export default function SignUpPage() {
     };
 
     return (
-        <main className="min-h-screen bg-white">
-            <nav className="flex items-center justify-between border-b px-4 sm:px-8 py-4">
-                <div className="text-lg sm:text-xl font-bold">StoryTime</div>
-                <Button onClick={handleNavigation} variant="link" className="text-sm hover:underline">
-                    Login
-                </Button>
-            </nav>
+<main className="min-h-screen bg-gradient-to-br from-[#fefefe] to-[#f7f9fb] font-sans text-gray-900">
+  {/* Navbar */}
+  <nav className="flex items-center justify-between border-b px-6 sm:px-12 py-4 shadow-sm bg-white/70 backdrop-blur">
+    <div className="text-xl font-extrabold tracking-wide">StoryTime</div>
+  <Button
+  onClick={handleNavigation}
+  variant="link"
+  className="text-sm hover:underline flex items-center gap-2 text-gray-700 transition duration-200"
+>
+  <FaSignInAlt size={14} className="text-gray-600" />
+  Login
+</Button>
+  </nav>
 
-            <section className="mx-auto flex max-w-md flex-col items-center justify-center p-4 sm:p-1">
-                <Card className="w-full mt-10">
-                    <CardHeader>
-                        <CardTitle className="text-xl sm:text-2xl">Sign Up to your Account</CardTitle>
-                        <CardDescription>
-                            Enter in your name, email and password to Sign Up
-                        </CardDescription>
-                    </CardHeader>
+  {/* Sign Up Section */}
+  <section className="mx-auto flex max-w-md flex-col items-center justify-center px-6 py-12 sm:py-20 animate-fade-in">
+    <Card className="w-full rounded-2xl border border-gray-200 shadow-lg bg-white px-6 py-8 transition-all duration-300">
+      <CardHeader className="text-center">
+        <CardTitle className="text-2xl sm:text-3xl font-bold">Create an Account</CardTitle>
+        <CardDescription className="text-gray-600">
+          Enter your details below to sign up
+        </CardDescription>
+      </CardHeader>
 
-                    <CardContent className="space-y-4">
-                        <div className="grid w-full items-center gap-1.5">
-                            <Label htmlFor="name">Name</Label>
-                            <Input
-                                id="name"
-                                type="text"
-                                placeholder="John Doe"
-                                required
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                            />
-                        </div>
+      <CardContent className="space-y-5">
+        {/* Name */}
+        <div className="grid gap-1.5">
+          <Label htmlFor="name">Name</Label>
+          <Input
+            id="name"
+            type="text"
+            placeholder="John Doe"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="focus:ring-2 focus:ring-black/30"
+          />
+        </div>
 
-                        <div className="grid w-full items-center gap-1.5">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="name@example.com"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
+        {/* Email */}
+        <div className="grid gap-1.5">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="john@example.com"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="focus:ring-2 focus:ring-black/30"
+          />
+        </div>
 
-                        <div className="grid w-full items-center gap-1.5">
-                            <Label htmlFor="password">Password</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                placeholder="••••••••"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </div>
+        {/* Password */}
+        <div className="grid gap-1.5">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="focus:ring-2 focus:ring-black/30"
+          />
+        </div>
 
-                        <div className="flex items-center gap-2">
-                           <label htmlFor="profile-picture" className="cursor-pointer flex items-center gap-2">
-                            <div className="relative h-20 w-20 overflow-hidden rounded-full bg-gray-300">
-                                <Image
-                                src={previewUrl}
-                                alt="Profile Picture"
-                                fill
-                                className="object-cover rounded-full"
-                                />
-                            </div>
-                            <span className="text-black text-m">Profile Picture</span>
-                            </label>
-                            <input
-                            type="file"
-                            id="profile-picture"
-                            className="sr-only"
-                            accept="image/*"
-                            onChange={handleFileChange}
-/>
+        {/* Profile Picture Upload */}
+        <div className="flex items-center gap-4 pt-4">
+          <label
+            htmlFor="profile-picture"
+            className="cursor-pointer flex items-center gap-3 group"
+          >
+            <div className="relative w-16 h-16 rounded-full bg-gray-200 overflow-hidden border border-gray-300 group-hover:shadow-md transition-shadow duration-300">
+              <Image
+                src={previewUrl}
+                alt="Profile Picture"
+                fill
+                className="object-cover rounded-full"
+              />
+            </div>
+            <span className="text-sm text-gray-700 group-hover:underline">Choose Profile Picture</span>
+          </label>
+          <input
+            id="profile-picture"
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            onChange={handleFileChange}
+          />
+        </div>
 
-                        </div>
-                        {error && <p style={{ color: 'red' }}>{error}</p>}
-                    </CardContent>
-                    <CardFooter>
-                        <Button onClick={handleSignUp} className="w-full mt-5">Sign Up</Button>
-                    </CardFooter>
-                </Card>
-            </section>
-        </main>
+        {/* Error Message */}
+        {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
+      </CardContent>
+
+      <CardFooter className="mt-4">
+        <Button
+          onClick={handleSignUp}
+          className="w-full py-3 text-md font-medium bg-black text-white hover:bg-gray-800 transition-transform hover:scale-[1.02]"
+        >
+          Sign Up
+        </Button>
+      </CardFooter>
+    </Card>
+  </section>
+</main>
+
     )
 }

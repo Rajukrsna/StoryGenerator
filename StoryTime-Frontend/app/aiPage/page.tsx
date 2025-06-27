@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { createAIStory } from "@/api/aiApi";
 import { createStory } from "@/api/storyApi";
 import { useRouter } from "next/navigation";
+import { Navbar } from "@/components/Navbar";
+import { FaMagic, FaStop, FaUpload } from "react-icons/fa";
+import { toast } from "sonner";
+
 
 export default function AIPage() {
     const searchParams = useSearchParams();
@@ -58,49 +62,77 @@ export default function AIPage() {
         }
     };
     const handlePublish = async () => {
-        try{
-            const response = await createStory(title,story, imageUrl)
-            if(response){
-                alert("Story published successfully.")
-                router.push("/homepage"); // Redirect to home page after publishing 
-        }
-        else{
-            alert("no response from the backend")
-        }
+      try {
+    const response = await createStory(title, story, imageUrl);
+    if (response) {
+      toast.success("🎉 Story published successfully!");
+      router.push("/homepage");
+    } else {
+      toast.warning("⚠️ No response from the backend.");
     }
-        catch{
-            alert("Publishing failed.")
-        }
+  } catch (error) {
+    console.error("Publishing failed:", error);
+    toast.error("❌ Publishing failed. Please try again.");
+  }
     }
     return (
-        <div className="p-10">
-            <h1 className="text-3xl font-bold mb-4">AI-Generated Story</h1>
+  <>
+    <Navbar />
 
-            <textarea
-                className="w-full h-64 text-lg p-4 border border-gray-300 rounded-md bg-white"
-                value={displayedStory}
-                onChange={(e) => {
-                    handleStopTyping(); // Stop animation when user starts typing
-                    setDisplayedStory(e.target.value);
-                    setStory(e.target.value);
-                    setIsUserEditing(true);
-                }}
-            />
+    <main className="min-h-screen bg-[#fdfdfd] px-6 py-12 max-w-5xl mx-auto text-gray-900 font-sans">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold tracking-tight mb-2 flex items-center gap-2">
+          ✨ AI-Generated Story
+        </h1>
+        <p className="text-gray-600 text-sm">Feel free to edit or regenerate your story using AI.</p>
+      </div>
 
-            <div className="flex gap-4 mt-4">
-                <Button onClick={handleRegenerate} disabled={isTyping}>
-                    {isTyping ? "Generating..." : "Regenerate with AI"}
-                </Button>
-                {isTyping && (
-                    <Button variant="destructive" onClick={handleStopTyping}>
-                        Stop Typing
-                    </Button>
-                  
-                )}
-                  <Button variant="outline" onClick={handlePublish}>
-                        Publish
-                        </Button>
-            </div>
-        </div>
-    );
+      {/* Story Textarea */}
+      <textarea
+        className="w-full h-72 sm:h-80 md:h-96 text-lg p-6 border border-gray-300 rounded-xl bg-white shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-black/30 transition"
+        value={displayedStory}
+        onChange={(e) => {
+          handleStopTyping(); // Stop animation when user types
+          setDisplayedStory(e.target.value);
+          setStory(e.target.value);
+          setIsUserEditing(true);
+        }}
+        placeholder="Your story appears here..."
+      />
+
+      {/* Action Buttons */}
+      <div className="flex flex-wrap gap-4 mt-6">
+        <Button
+          onClick={handleRegenerate}
+          disabled={isTyping}
+          className="px-6 py-2 text-base flex items-center gap-2"
+        >
+          <FaMagic className="text-lg" />
+          {isTyping ? "Generating..." : "Regenerate with AI"}
+        </Button>
+
+        {isTyping && (
+          <Button
+            variant="destructive"
+            onClick={handleStopTyping}
+            className="px-6 py-2 text-base flex items-center gap-2"
+          >
+            <FaStop className="text-lg" />
+            Stop Typing
+          </Button>
+        )}
+
+        <Button
+          variant="outline"
+          onClick={handlePublish}
+          className="px-6 py-2 text-base flex items-center gap-2"
+        >
+          <FaUpload className="text-lg" />
+          Publish
+        </Button>
+      </div>
+    </main>
+  </>
+);
+
 }
